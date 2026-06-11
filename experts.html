@@ -208,15 +208,28 @@
   .pv img{width:62px;height:62px;object-fit:cover;display:block}
   .pv .file{display:flex;align-items:center;gap:7px;padding:9px 11px;font-size:12.5px;color:var(--ink-2);max-width:200px}
   .pv .x{position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;display:grid;place-items:center;border:2px solid #fff}
-  .comp-row{display:flex;align-items:flex-end;gap:10px}
-  .tool{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);display:grid;place-items:center;color:var(--ink-2);font-size:18px;transition:.16s;flex:none}
-  .tool:hover{border-color:var(--red);color:var(--red);background:var(--red-soft)}
-  .composer textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14.5px;
-    font-family:inherit;outline:none;max-height:120px;line-height:1.5}
-  .composer textarea:focus{border-color:var(--red)}
-  .send{width:42px;height:42px;border-radius:12px;background:var(--red);color:#fff;display:grid;place-items:center;font-size:18px;flex:none;transition:.16s}
-  .send:hover{background:var(--red-deep)}
-  .send:disabled{background:#c9ccd8;cursor:not-allowed}
+  .comp-row{display:flex;align-items:flex-end;gap:4px;background:#fff;border:1px solid var(--line);
+    border-radius:20px;padding:6px 6px 6px 8px;transition:.2s cubic-bezier(.4,0,.2,1);
+    box-shadow:0 1px 2px rgba(22,26,43,.04),0 6px 16px rgba(22,26,43,.05)}
+  .comp-row:focus-within{border-color:#f3b8b4;
+    box-shadow:0 1px 2px rgba(22,26,43,.04),0 8px 24px rgba(226,35,26,.12)}
+  .tool{width:36px;height:36px;border-radius:50%;border:none;background:transparent;display:grid;place-items:center;
+    color:var(--ink-3);font-size:17px;transition:.16s;flex:none;cursor:pointer}
+  .tool:hover{color:var(--red);background:var(--red-soft)}
+  .tool:active{transform:scale(.92)}
+  .tool:disabled{opacity:.4;cursor:not-allowed;background:transparent;color:var(--ink-3)}
+  .tool.rec{color:#fff;background:var(--red);animation:pulse 1.1s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(226,35,26,.35)}50%{box-shadow:0 0 0 6px rgba(226,35,26,0)}}
+  .composer textarea{flex:1;resize:none;border:none;background:transparent;padding:8px 6px;font-size:14.5px;
+    font-family:inherit;outline:none;max-height:120px;line-height:1.55;align-self:center;color:var(--ink)}
+  .composer textarea::placeholder{color:var(--ink-3)}
+  .send{width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;
+    background:linear-gradient(135deg,#ff6a5a 0%,var(--red) 55%,var(--red-deep) 100%);
+    color:#fff;display:grid;place-items:center;font-size:16px;flex:none;transition:.2s cubic-bezier(.4,0,.2,1);
+    box-shadow:0 3px 9px rgba(226,35,26,.3)}
+  .send:hover{transform:translateY(-1px) scale(1.04);box-shadow:0 6px 16px rgba(226,35,26,.4)}
+  .send:active{transform:translateY(0) scale(.97)}
+  .send:disabled{background:#d2d5e0;box-shadow:none;cursor:not-allowed;transform:none}
   .hint{font-size:11.5px;color:var(--ink-3);margin-top:8px;text-align:center}
 
   footer{margin:60px 0 40px;text-align:center;color:var(--ink-3);font-size:13px}
@@ -295,7 +308,6 @@
   </div>
 </footer>
 
-<input type="file" id="file-img" accept="image/*" multiple hidden />
 <input type="file" id="file-doc" hidden multiple />
 
 <script>
@@ -310,7 +322,7 @@ const CONFIG = {
   bailian: {
     apiKey : "sk-50ca2008e8414c2cbe5bc11fabd9f715",
     appId  : "c059b8f3855c421da7ca354f5cf671cc",   // 罗琼芝
-    useProxy : false,
+    useProxy : true,
     directBase : "https://dashscope.aliyuncs.com",
     proxyBase  : "http://localhost:8787",
     // 上传文档时调用 getPolicy 所用的模型名，需与你的应用实际使用的模型一致
@@ -456,9 +468,9 @@ function renderChat(e){
     <div class="composer">
       <div class="preview" id="preview"></div>
       <div class="comp-row">
-        <button class="tool" title="上传图片" onclick="document.getElementById('file-img').click()">🖼️</button>
-        <button class="tool" title="上传文件" onclick="document.getElementById('file-doc').click()">📎</button>
-        <textarea id="input" rows="1" placeholder="${e.hasBot?'输入您的问题，回车发送，Shift+回车换行…':'机器人即将上线，敬请期待…'}" ${e.hasBot?'':'disabled'}></textarea>
+        <button class="tool" title="上传文件" onclick="document.getElementById('file-doc').click()" ${e.hasBot?'':'disabled'}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a5 5 0 0 1-7.07-7.07l9.19-9.19a3.5 3.5 0 0 1 4.95 4.95l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></button>
+        <textarea id="input" rows="1" placeholder="${e.hasBot?'输入您的问题，回车发送，Shift+回车换行…（图片可直接粘贴）':'机器人即将上线，敬请期待…'}" ${e.hasBot?'':'disabled'}></textarea>
+        <button class="tool" id="mic" title="语音输入" ${e.hasBot?'':'disabled'}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1"/><line x1="12" y1="19" x2="12" y2="22.5"/></svg></button>
         <button class="send" id="send" ${e.hasBot?'':'disabled'}>➤</button>
       </div>
       <div class="hint">AI 生成内容仅供参考，重要决策请以红色星球专家正式意见为准。</div>
@@ -474,14 +486,45 @@ function bindChat(e){
   attachments=[]; sessionId=null;
   const input=document.getElementById("input");
   const send=document.getElementById("send");
-  const imgIn=document.getElementById("file-img");
   const docIn=document.getElementById("file-doc");
 
   input.addEventListener("input",()=>{input.style.height="auto";input.style.height=Math.min(input.scrollHeight,120)+"px";});
   input.addEventListener("keydown",ev=>{if(ev.key==="Enter"&&!ev.shiftKey){ev.preventDefault();doSend(e);}});
+  input.addEventListener("paste",ev=>{
+    const imgs=[...(ev.clipboardData?.items||[])]
+      .filter(it=>it.kind==="file"&&it.type.startsWith("image/"))
+      .map(it=>it.getAsFile()).filter(Boolean);
+    if(imgs.length){ ev.preventDefault(); addFiles(imgs,"image"); }
+  });
   send.onclick=()=>doSend(e);
-  imgIn.onchange=ev=>addFiles(ev.target.files,"image");
   docIn.onchange=ev=>addFiles(ev.target.files,"file");
+  bindMic(input);
+}
+
+/* 语音输入：Web Speech API 语音转文字，识别结果填入输入框 */
+let recog=null, listening=false;
+function bindMic(input){
+  const mic=document.getElementById("mic");
+  if(!mic) return;
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ mic.onclick=()=>showErr("当前浏览器不支持语音输入，请使用 Chrome 或 Edge。"); return; }
+  let base="";
+  mic.onclick=()=>{
+    if(listening){ recog&&recog.stop(); return; }
+    recog=new SR();
+    recog.lang="zh-CN"; recog.interimResults=true; recog.continuous=false;
+    base=input.value?input.value+" ":"";
+    recog.onstart=()=>{ listening=true; mic.classList.add("rec"); mic.title="正在聆听，点击停止"; };
+    recog.onresult=ev=>{
+      let txt="";
+      for(let i=0;i<ev.results.length;i++) txt+=ev.results[i][0].transcript;
+      input.value=base+txt;
+      input.style.height="auto"; input.style.height=Math.min(input.scrollHeight,120)+"px";
+    };
+    recog.onerror=ev=>{ if(ev.error!=="aborted"&&ev.error!=="no-speech") showErr("语音识别失败："+ev.error); };
+    recog.onend=()=>{ listening=false; mic.classList.remove("rec"); mic.title="语音输入"; input.focus(); };
+    recog.start();
+  };
 }
 
 function addFiles(list,kind){
@@ -490,7 +533,6 @@ function addFiles(list,kind){
     r.onload=()=>{attachments.push({kind,name:f.name,dataUrl:r.result,size:f.size,mime:f.type||"application/octet-stream"});renderPreview();};
     r.readAsDataURL(f);
   });
-  document.getElementById("file-img").value="";
   document.getElementById("file-doc").value="";
 }
 function fmtSize(b){return b<1024?b+'B':b<1048576?(b/1024).toFixed(0)+'KB':(b/1048576).toFixed(1)+'MB';}
