@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>红色星球 · 精选专家市场</title>
+<style>
+  :root{
+    --red:#E2231A;          /* 品牌主红 */
+    --red-deep:#B0141A;
+    --red-soft:#FCEBEA;
+    --gold:#E0B25C;         /* 高端点缀 */
+    --ink:#161A2B;          /* 主文字 */
+    --ink-2:#4A4F63;        /* 次文字 */
+    --ink-3:#878CA0;        /* 辅助文字 */
+    --line:#ECEEF4;
+    --bg:#F6F7FB;
+    --card:#FFFFFF;
+    --radius:18px;
+    --shadow:0 10px 30px rgba(22,26,43,.08);
+    --shadow-sm:0 4px 14px rgba(22,26,43,.06);
+    --space:linear-gradient(135deg,#1a0608 0%,#3a0a10 45%,#7a1318 100%);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",sans-serif;
+    color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+
+  /* ===== Header ===== */
+  header.site{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.86);
+    backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:800;font-size:19px;letter-spacing:.3px}
+  .planet{width:30px;height:30px;border-radius:50%;
+    background:radial-gradient(circle at 32% 30%,#ff6a5a 0%,var(--red) 42%,var(--red-deep) 100%);
+    box-shadow:0 0 0 3px rgba(226,35,26,.14), inset -3px -3px 6px rgba(0,0,0,.25);position:relative}
+  .planet::after{content:"";position:absolute;left:-5px;top:13px;width:40px;height:9px;border-radius:50%;
+    border:2px solid rgba(224,178,92,.7);transform:rotate(-18deg)}
+  .brand small{font-weight:600;color:var(--ink-3);font-size:12px;margin-left:2px}
+  nav.links{display:flex;gap:28px;font-size:15px;color:var(--ink-2);font-weight:500}
+  nav.links a:hover{color:var(--red)}
+  nav.links a.active{color:var(--red);font-weight:700}
+  .cta{background:var(--red);color:#fff;padding:9px 18px;border-radius:10px;font-weight:600;font-size:14px;
+    transition:.2s;box-shadow:0 6px 16px rgba(226,35,26,.28)}
+  .cta:hover{background:var(--red-deep);transform:translateY(-1px)}
+  @media(max-width:760px){nav.links{display:none}}
+
+  /* ===== Hero ===== */
+  .hero{background:var(--space);color:#fff;position:relative;overflow:hidden}
+  .hero .stars{position:absolute;inset:0;background-image:
+    radial-gradient(1.5px 1.5px at 20% 30%,#fff,transparent),
+    radial-gradient(1.5px 1.5px at 70% 20%,#ffd,transparent),
+    radial-gradient(1px 1px at 40% 70%,#fff,transparent),
+    radial-gradient(1.5px 1.5px at 85% 60%,#fff,transparent),
+    radial-gradient(1px 1px at 55% 45%,#fff,transparent),
+    radial-gradient(1px 1px at 10% 80%,#fff,transparent);opacity:.5}
+  .hero .glow{position:absolute;right:-120px;top:-120px;width:360px;height:360px;border-radius:50%;
+    background:radial-gradient(circle at 35% 35%,#ff7a5a 0%,var(--red) 45%,transparent 70%);filter:blur(6px);opacity:.55}
+  .hero-inner{position:relative;padding:64px 0 72px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;letter-spacing:2px;
+    color:var(--gold);font-weight:600;text-transform:uppercase;margin-bottom:16px}
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--gold)}
+  .hero h1{font-size:38px;font-weight:800;line-height:1.25;letter-spacing:.5px}
+  .hero h1 span{color:#ffb3ab}
+  .hero p{margin-top:14px;font-size:16px;color:rgba(255,255,255,.82);max-width:560px}
+  .hero-stats{display:flex;gap:38px;margin-top:30px}
+  .hero-stats div b{font-size:26px;font-weight:800}
+  .hero-stats div small{display:block;color:rgba(255,255,255,.7);font-size:13px}
+  @media(max-width:640px){.hero h1{font-size:28px}.hero-stats{gap:24px}}
+
+  /* ===== Filter chips ===== */
+  .toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;
+    margin:-28px auto 0;position:relative;z-index:5;background:var(--card);
+    border:1px solid var(--line);border-radius:14px;padding:14px 18px;box-shadow:var(--shadow)}
+  .chips{display:flex;gap:10px;flex-wrap:wrap}
+  .chip{padding:7px 15px;border-radius:999px;background:#fff;border:1px solid var(--line);
+    font-size:13.5px;color:var(--ink-2);font-weight:500;transition:.18s}
+  .chip:hover{border-color:var(--red)}
+  .chip.active{background:var(--red-soft);border-color:var(--red);color:var(--red);font-weight:700}
+  .search{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);
+    border-radius:10px;padding:8px 12px;min-width:200px}
+  .search input{border:none;outline:none;font-size:14px;width:100%;background:transparent}
+  @media(max-width:640px){.toolbar{flex-direction:column;align-items:stretch}.search{min-width:0}}
+
+  /* ===== Section heads ===== */
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;margin:46px 0 22px}
+  .sec-head h2{font-size:23px;font-weight:800}
+  .sec-head h2 i{color:var(--red);font-style:normal}
+  .sec-head p{color:var(--ink-3);font-size:14px}
+
+  /* ===== Expert grid ===== */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  .ecard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:24px;box-shadow:var(--shadow-sm);transition:.22s;cursor:pointer;position:relative;overflow:hidden}
+  .ecard:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:rgba(226,35,26,.25)}
+  .ecard .ribbon{position:absolute;top:16px;right:-34px;transform:rotate(45deg);
+    background:var(--gold);color:#3a2a05;font-size:11px;font-weight:800;padding:4px 40px;letter-spacing:1px}
+  .ec-top{display:flex;gap:16px;align-items:center}
+  .avatar{width:64px;height:64px;border-radius:18px;display:grid;place-items:center;
+    font-size:26px;font-weight:800;color:#fff;flex:none;box-shadow:var(--shadow-sm)}
+  .av-zh{background:linear-gradient(135deg,#2b3a67,#16203d)}
+  .av-lqz{background:linear-gradient(135deg,#ff6a5a,var(--red-deep))}
+  .ec-top h3{font-size:19px;font-weight:800}
+  .ec-top .title{color:var(--red);font-size:13.5px;font-weight:600;margin-top:2px}
+  .ec-rating{margin-top:4px;font-size:12.5px;color:var(--ink-3)}
+  .ec-rating b{color:var(--ink)}
+  .tags{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0}
+  .tag{font-size:12px;color:var(--ink-2);background:#F2F3F8;border-radius:6px;padding:4px 9px}
+  .ec-bio{color:var(--ink-2);font-size:14px;min-height:44px}
+  .ec-foot{display:flex;align-items:center;justify-content:space-between;margin-top:18px;
+    padding-top:16px;border-top:1px solid var(--line)}
+  .ec-price{font-size:13px;color:var(--ink-3)}
+  .ec-price b{color:var(--red);font-size:18px;font-weight:800}
+  .btn-line{border:1px solid var(--red);color:var(--red);padding:8px 16px;border-radius:9px;font-weight:600;font-size:13.5px;transition:.18s}
+  .ecard:hover .btn-line{background:var(--red);color:#fff}
+  .bot-dot{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#15a05a;font-weight:600}
+  .bot-dot::before{content:"";width:7px;height:7px;border-radius:50%;background:#19c46a;box-shadow:0 0 0 3px rgba(25,196,106,.18)}
+
+  /* ===== Detail view ===== */
+  .view{display:none}
+  .view.active{display:block}
+  .back{display:inline-flex;align-items:center;gap:6px;color:var(--ink-2);font-size:14px;margin:24px 0 4px;font-weight:500}
+  .back:hover{color:var(--red)}
+  .profile{background:var(--space);color:#fff;border-radius:22px;padding:34px;position:relative;overflow:hidden;margin-top:14px}
+  .profile .glow{position:absolute;left:-80px;bottom:-120px;width:280px;height:280px;border-radius:50%;
+    background:radial-gradient(circle at 40% 40%,#ff7a5a,transparent 70%);opacity:.4}
+  .pf-inner{position:relative;display:flex;gap:24px;align-items:center;flex-wrap:wrap}
+  .pf-avatar{width:96px;height:96px;border-radius:24px;display:grid;place-items:center;font-size:40px;font-weight:800;flex:none}
+  .pf-meta h2{font-size:28px;font-weight:800}
+  .pf-meta .title{color:var(--gold);font-weight:600;margin-top:4px}
+  .pf-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .pf-tags .tag{background:rgba(255,255,255,.12);color:#fff}
+  .pf-stats{display:flex;gap:30px;margin-left:auto;flex-wrap:wrap}
+  .pf-stats div b{font-size:22px;font-weight:800}
+  .pf-stats div small{display:block;color:rgba(255,255,255,.7);font-size:12.5px}
+  .pf-cta{margin-top:22px}
+  .pf-cta .cta{font-size:15px;padding:11px 24px}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:26px}
+  @media(max-width:860px){.cols{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm)}
+  .panel h3{font-size:17px;font-weight:800;display:flex;align-items:center;gap:9px;margin-bottom:6px}
+  .panel h3 .ic{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--red-soft);color:var(--red);font-size:15px}
+  .panel .sub{color:var(--ink-3);font-size:13px;margin-bottom:16px}
+  .svc{display:flex;gap:12px;padding:13px 0;border-top:1px solid var(--line)}
+  .svc:first-of-type{border-top:none}
+  .svc .ck{color:var(--red);font-weight:800;flex:none}
+  .svc .t b{font-size:14.5px}
+  .svc .t p{color:var(--ink-2);font-size:13px}
+  .vas{border:1px solid var(--line);border-radius:12px;padding:15px;margin-bottom:12px;transition:.18s}
+  .vas:hover{border-color:var(--red);background:#fffafa}
+  .vas .row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .vas b{font-size:15px}
+  .vas .price{color:var(--red);font-weight:800;font-size:15px;white-space:nowrap}
+  .vas p{color:var(--ink-2);font-size:13px;margin-top:5px}
+
+  /* ===== Chatbox ===== */
+  .chat{margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+  .chat-head{display:flex;align-items:center;gap:12px;padding:16px 22px;background:linear-gradient(90deg,#fff,#fff7f6);border-bottom:1px solid var(--line)}
+  .chat-head .bavatar{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:18px}
+  .chat-head .info b{font-size:15.5px}
+  .chat-head .info small{display:block;color:#15a05a;font-size:12px;font-weight:600}
+  .chat-head .badge{margin-left:auto;font-size:11.5px;color:var(--ink-3);background:#F2F3F8;padding:5px 10px;border-radius:8px}
+  .msgs{height:420px;overflow-y:auto;padding:22px;display:flex;flex-direction:column;gap:14px;background:
+    radial-gradient(1px 1px at 15% 20%,#eef0f6,transparent),
+    radial-gradient(1px 1px at 80% 60%,#eef0f6,transparent),var(--bg)}
+  .msg{display:flex;gap:10px;max-width:84%}
+  .msg .b-av{width:32px;height:32px;border-radius:9px;flex:none;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px}
+  .bubble{padding:11px 15px;border-radius:14px;font-size:14.5px;line-height:1.62;white-space:pre-wrap;word-break:break-word}
+  .msg.bot .bubble{background:#fff;border:1px solid var(--line);border-top-left-radius:4px;color:var(--ink);white-space:normal}
+  .msg.bot .bubble h1,.msg.bot .bubble h2,.msg.bot .bubble h3,.msg.bot .bubble h4{font-weight:800;margin:11px 0 5px;color:var(--ink);line-height:1.35}
+  .msg.bot .bubble h1{font-size:17px}.msg.bot .bubble h2{font-size:16px}
+  .msg.bot .bubble h3,.msg.bot .bubble h4{font-size:14.5px}
+  .msg.bot .bubble p{margin:6px 0}
+  .msg.bot .bubble ul,.msg.bot .bubble ol{margin:6px 0 6px 20px;padding:0}
+  .msg.bot .bubble li{margin:3px 0}
+  .msg.bot .bubble strong{font-weight:700;color:var(--ink)}
+  .msg.bot .bubble em{font-style:italic}
+  .msg.bot .bubble code{background:#f2f3f8;border:1px solid var(--line);border-radius:5px;padding:1px 5px;font-size:13px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .msg.bot .bubble pre{background:#0f1320;color:#e6e8f0;border-radius:10px;padding:12px 14px;overflow:auto;margin:8px 0}
+  .msg.bot .bubble pre code{background:none;border:none;color:inherit;padding:0}
+  .msg.bot .bubble a{color:var(--red);text-decoration:underline}
+  .msg.bot .bubble hr{border:none;border-top:1px solid var(--line);margin:10px 0}
+  .msg.bot .bubble blockquote{border-left:3px solid var(--red);background:#fff7f6;margin:8px 0;padding:6px 12px;color:var(--ink-2);border-radius:0 8px 8px 0}
+  .msg.bot .bubble>:first-child{margin-top:0}.msg.bot .bubble>:last-child{margin-bottom:0}
+  .msg.user{align-self:flex-end;flex-direction:row-reverse}
+  .msg.user .bubble{background:var(--red);color:#fff;border-top-right-radius:4px}
+  .msg.user .b-av{background:#2b3a67}
+  .msg .atts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .att-img{width:120px;height:90px;object-fit:cover;border-radius:9px;border:1px solid var(--line)}
+  .att-file{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
+    padding:7px 11px;border-radius:9px;font-size:12.5px}
+  .msg.bot .att-file{background:#f2f3f8;border-color:var(--line);color:var(--ink-2)}
+  .typing{display:flex;gap:4px;padding:13px 16px}
+  .typing span{width:7px;height:7px;border-radius:50%;background:#c4c8d6;animation:bl 1.2s infinite}
+  .typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+  @keyframes bl{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+
+  .composer{border-top:1px solid var(--line);padding:12px 16px;background:#fff}
+  .preview{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:10px}
+  .pv{position:relative;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .pv img{width:62px;height:62px;object-fit:cover;display:block}
+  .pv .file{display:flex;align-items:center;gap:7px;padding:9px 11px;font-size:12.5px;color:var(--ink-2);max-width:200px}
+  .pv .x{position:absolute;top:-7px;right:-7px;width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;display:grid;place-items:center;border:2px solid #fff}
+  .comp-row{display:flex;align-items:flex-end;gap:10px}
+  .tool{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);display:grid;place-items:center;color:var(--ink-2);font-size:18px;transition:.16s;flex:none}
+  .tool:hover{border-color:var(--red);color:var(--red);background:var(--red-soft)}
+  .composer textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:14.5px;
+    font-family:inherit;outline:none;max-height:120px;line-height:1.5}
+  .composer textarea:focus{border-color:var(--red)}
+  .send{width:42px;height:42px;border-radius:12px;background:var(--red);color:#fff;display:grid;place-items:center;font-size:18px;flex:none;transition:.16s}
+  .send:hover{background:var(--red-deep)}
+  .send:disabled{background:#c9ccd8;cursor:not-allowed}
+  .hint{font-size:11.5px;color:var(--ink-3);margin-top:8px;text-align:center}
+
+  footer{margin:60px 0 40px;text-align:center;color:var(--ink-3);font-size:13px}
+  footer b{color:var(--ink-2)}
+  .err{background:#fff3f2;border:1px solid #f5c2bd;color:var(--red-deep);font-size:13px;padding:11px 14px;border-radius:10px;margin:0 22px 14px}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="#/">
+      <span class="planet"></span>
+      红色星球 <small>RED PLANET · 财税专家</small>
+    </a>
+    <nav class="links">
+      <a href="#/">首页</a>
+      <a href="#/experts" class="active">专家市场</a>
+      <a href="#/">服务</a>
+      <a href="#/">关于我们</a>
+    </nav>
+    <a class="cta" href="#/experts">免费咨询</a>
+  </div>
+</header>
+
+<!-- ========== MARKETPLACE VIEW ========== -->
+<section id="view-market" class="view active">
+  <div class="hero">
+    <div class="stars"></div><div class="glow"></div>
+    <div class="wrap hero-inner">
+      <span class="eyebrow">精选专家 · EXPERT MARKETPLACE</span>
+      <h1>红色星球 <span>精选专家市场</span><br/>做中高端业务，找对的人</h1>
+      <p>每一位都是红色星球严选的财税与商业顾问。点击进入专家主页，查看基础服务与增值项目，并与其专属 AI 机器人实时咨询。</p>
+      <div class="hero-stats">
+        <div><b>2</b><small>在册精选专家</small></div>
+        <div><b>4.9</b><small>平均服务评分</small></div>
+        <div><b>24h</b><small>AI 机器人响应</small></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="toolbar">
+      <div class="chips">
+        <button class="chip active">全部专家</button>
+        <button class="chip">税务筹划</button>
+        <button class="chip">财务管理</button>
+        <button class="chip">融资上市</button>
+        <button class="chip">工商合规</button>
+      </div>
+      <div class="search">
+        <span>🔍</span><input placeholder="搜索专家姓名或领域…" />
+      </div>
+    </div>
+
+    <div class="sec-head">
+      <h2>红色星球 · <i>精选专家</i></h2>
+      <p>共 2 位专家</p>
+    </div>
+
+    <div class="grid" id="expert-grid"><!-- cards injected --></div>
+  </div>
+</section>
+
+<!-- ========== DETAIL VIEW ========== -->
+<section id="view-detail" class="view">
+  <div class="wrap">
+    <a class="back" href="#/experts">← 返回专家市场</a>
+    <div id="detail-content"><!-- injected --></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <b>红色星球财务</b> · 做中高端业务，就上红色星球　|　© 2026 Red Planet Finance · 专家市场（内测）
+  </div>
+</footer>
+
+<input type="file" id="file-img" accept="image/*" multiple hidden />
+<input type="file" id="file-doc" hidden multiple />
+
+<script>
+/* =========================================================
+   配置区  ——  罗琼芝的阿里云百炼「智能体应用」接入
+   --------------------------------------------------------
+   appId：在百炼控制台「我的应用」中获取（填好后即可测试）
+   useProxy：浏览器直连 DashScope 通常会被 CORS 拦截，
+             若直连失败，运行随附的 proxy.js 并设为 true。
+   ========================================================= */
+const CONFIG = {
+  bailian: {
+    apiKey : "sk-50ca2008e8414c2cbe5bc11fabd9f715",
+    appId  : "c059b8f3855c421da7ca354f5cf671cc",   // 罗琼芝
+    useProxy : false,
+    directBase : "https://dashscope.aliyuncs.com",
+    proxyBase  : "http://localhost:8787",
+    // 上传文档时调用 getPolicy 所用的模型名，需与你的应用实际使用的模型一致
+    // （图片走 base64 直传，不受此项影响）
+    fileModel : "qwen-max"
+  }
+};
+/* ──────────────────────────────────────────────────────────────
+   多模态读取能力说明：
+   · 图片：以 base64 直接放入 input.image_list（无需上传）。
+           需在百炼应用里把模型设为「千问VL」系列并开启视觉理解。
+   · 文件：本地文件需先上传得到可访问 URL。本页通过 proxy.js 调用
+           getPolicy → OSS，得到 oss:// 链接放入 input.file_list，
+           并由代理注入 X-DashScope-OssResourceResolve: enable 头。
+           需在百炼应用「规划 > 文件处理」中开启 全文引用 或 切片检索。
+           ⚠️ 读取文件必须开启代理（useProxy:true 且运行 node proxy.js）。
+   ────────────────────────────────────────────────────────────── */
+
+/* ============ 专家数据 ============ */
+const EXPERTS = {
+  zhenghao: {
+    id:"zhenghao", name:"郑浩", initial:"郑", avClass:"av-zh", pfAvBg:"linear-gradient(135deg,#2b3a67,#16203d)",
+    title:"资深税务筹划专家 · 高新认定顾问",
+    rating:"4.9", served:"860+", years:"15", resp:"约 2 小时",
+    tags:["税务筹划","高新认定","股权架构","上市辅导"],
+    bio:"深耕企业税务筹划与资本运作 15 年，主导逾百例高新技术企业认定与税务优化方案。",
+    base:[
+      {t:"财税健康诊断",p:"梳理企业税负结构，识别合规与优化空间。"},
+      {t:"政策咨询答疑",p:"高新认定、研发加计扣除等政策一对一解读。"},
+      {t:"基础税务咨询",p:"日常涉税疑问在线答复，给出处理建议。"}
+    ],
+    vas:[
+      {t:"定制税务筹划方案",d:"针对企业实际经营出具合规的整体税务优化方案。",price:"¥9,800 起"},
+      {t:"股权架构设计",d:"创始人持股、员工激励与控制权的架构搭建。",price:"¥19,800 起"},
+      {t:"上市财务辅导",d:"IPO/北交所前财务规范化与中介对接辅导。",price:"按项目报价"}
+    ],
+    hasBot:false
+  },
+  luoqiongzhi: {
+    id:"luoqiongzhi", name:"罗琼芝", initial:"罗", avClass:"av-lqz", pfAvBg:"linear-gradient(135deg,#ff6a5a,#B0141A)",
+    title:"财务管理与融资专家 · 工商合规顾问",
+    rating:"5.0", served:"1,120+", years:"12", resp:"实时（AI）",
+    tags:["财务管理","企业融资","工商合规","内控体系"],
+    bio:"专注中小企业财务管理与融资顾问 12 年，擅长内控体系搭建与融资财务包装，已配备专属 AI 机器人 7×24 在线。",
+    base:[
+      {t:"工商注册咨询",p:"公司设立、变更、注销全流程在线指导。"},
+      {t:"记账报税答疑",p:"日常账务与申报疑问即时解答。"},
+      {t:"财务报表解读",p:"三大报表健康度分析与风险提示。"}
+    ],
+    vas:[
+      {t:"融资财务顾问",d:"商业计划书财务模型搭建与投资人对接。",price:"¥12,800 起"},
+      {t:"内控体系搭建",d:"为成长型企业设计可落地的财务内控制度。",price:"¥15,800 起"},
+      {t:"并购重组财务支持",d:"尽调、估值与交易结构的财务方案设计。",price:"按项目报价"}
+    ],
+    hasBot:true,
+    botName:"罗琼芝 · AI 财务顾问"
+  }
+};
+
+/* ============ 渲染专家卡片 ============ */
+function botBadge(e){return e.hasBot?'<span class="bot-dot">AI 机器人在线</span>':'<span class="ec-price">AI 机器人即将上线</span>';}
+function renderGrid(){
+  const g=document.getElementById("expert-grid");
+  g.innerHTML=Object.values(EXPERTS).map(e=>`
+    <div class="ecard" onclick="goExpert('${e.id}')">
+      <div class="ribbon">精选</div>
+      <div class="ec-top">
+        <div class="avatar ${e.avClass}">${e.initial}</div>
+        <div>
+          <h3>${e.name}</h3>
+          <div class="title">${e.title}</div>
+          <div class="ec-rating">⭐ <b>${e.rating}</b> · 已服务 ${e.served} · 响应 ${e.resp}</div>
+        </div>
+      </div>
+      <div class="tags">${e.tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div>
+      <div class="ec-bio">${e.bio}</div>
+      <div class="ec-foot">
+        ${botBadge(e)}
+        <span class="btn-line">查看主页 →</span>
+      </div>
+    </div>`).join("");
+}
+
+/* ============ 渲染专家详情 ============ */
+function renderDetail(e){
+  const c=document.getElementById("detail-content");
+  c.innerHTML=`
+    <div class="profile">
+      <div class="glow"></div>
+      <div class="pf-inner">
+        <div class="pf-avatar" style="background:${e.pfAvBg}">${e.initial}</div>
+        <div class="pf-meta">
+          <h2>${e.name}</h2>
+          <div class="title">${e.title}</div>
+          <div class="pf-tags">${e.tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div>
+        </div>
+        <div class="pf-stats">
+          <div><b>${e.rating}</b><small>服务评分</small></div>
+          <div><b>${e.served}</b><small>累计服务</small></div>
+          <div><b>${e.years}年</b><small>从业经验</small></div>
+          <div><b>${e.resp}</b><small>响应速度</small></div>
+        </div>
+      </div>
+      <div class="pf-cta"><a class="cta" href="#chat-anchor" onclick="focusChat(event)">💬 向 ${e.name} 的 AI 机器人咨询</a></div>
+    </div>
+
+    <div class="cols">
+      <div class="panel">
+        <h3><span class="ic">✓</span>基础服务内容</h3>
+        <div class="sub">入驻即享的标准化服务</div>
+        ${e.base.map(s=>`<div class="svc"><span class="ck">✓</span><div class="t"><b>${s.t}</b><p>${s.p}</p></div></div>`).join("")}
+      </div>
+      <div class="panel">
+        <h3><span class="ic">★</span>增值服务项目</h3>
+        <div class="sub">按需选购的专业深度服务</div>
+        ${e.vas.map(v=>`<div class="vas"><div class="row"><b>${v.t}</b><span class="price">${v.price}</span></div><p>${v.d}</p></div>`).join("")}
+      </div>
+    </div>
+
+    <div id="chat-anchor"></div>
+    ${renderChat(e)}`;
+  if(e.hasBot){ bindChat(e); }
+}
+
+/* ============ 聊天框 ============ */
+function renderChat(e){
+  const avBg=e.pfAvBg;
+  const status=e.hasBot?'在线 · 由阿里云百炼智能体驱动':'机器人即将上线';
+  return `
+  <div class="chat">
+    <div class="chat-head">
+      <div class="bavatar" style="background:${avBg}">${e.initial}</div>
+      <div class="info"><b>${e.botName||e.name+' · AI 助手'}</b><small>${status}</small></div>
+      <span class="badge">支持 图片 / 文件 上传</span>
+    </div>
+    <div id="chat-err"></div>
+    <div class="msgs" id="msgs">
+      <div class="msg bot">
+        <div class="b-av" style="background:${avBg}">${e.initial}</div>
+        <div class="bubble">您好，我是${e.name}的 AI 助手 👋 ${e.hasBot?'关于财务管理、企业融资、工商合规等问题，您都可以问我，也可以上传图片或文件让我帮您分析。':'我的智能体正在接入中，您可以先浏览上方的服务项目，或留言预约人工咨询。'}</div>
+      </div>
+    </div>
+    <div class="composer">
+      <div class="preview" id="preview"></div>
+      <div class="comp-row">
+        <button class="tool" title="上传图片" onclick="document.getElementById('file-img').click()">🖼️</button>
+        <button class="tool" title="上传文件" onclick="document.getElementById('file-doc').click()">📎</button>
+        <textarea id="input" rows="1" placeholder="${e.hasBot?'输入您的问题，回车发送，Shift+回车换行…':'机器人即将上线，敬请期待…'}" ${e.hasBot?'':'disabled'}></textarea>
+        <button class="send" id="send" ${e.hasBot?'':'disabled'}>➤</button>
+      </div>
+      <div class="hint">AI 生成内容仅供参考，重要决策请以红色星球专家正式意见为准。</div>
+    </div>
+  </div>`;
+}
+
+/* ============ 聊天交互 + 百炼接入 ============ */
+let attachments=[];   // {kind:'image'|'file', name, dataUrl, size}
+let sessionId=null;   // 百炼多轮会话 id
+
+function bindChat(e){
+  attachments=[]; sessionId=null;
+  const input=document.getElementById("input");
+  const send=document.getElementById("send");
+  const imgIn=document.getElementById("file-img");
+  const docIn=document.getElementById("file-doc");
+
+  input.addEventListener("input",()=>{input.style.height="auto";input.style.height=Math.min(input.scrollHeight,120)+"px";});
+  input.addEventListener("keydown",ev=>{if(ev.key==="Enter"&&!ev.shiftKey){ev.preventDefault();doSend(e);}});
+  send.onclick=()=>doSend(e);
+  imgIn.onchange=ev=>addFiles(ev.target.files,"image");
+  docIn.onchange=ev=>addFiles(ev.target.files,"file");
+}
+
+function addFiles(list,kind){
+  [...list].forEach(f=>{
+    const r=new FileReader();
+    r.onload=()=>{attachments.push({kind,name:f.name,dataUrl:r.result,size:f.size,mime:f.type||"application/octet-stream"});renderPreview();};
+    r.readAsDataURL(f);
+  });
+  document.getElementById("file-img").value="";
+  document.getElementById("file-doc").value="";
+}
+function fmtSize(b){return b<1024?b+'B':b<1048576?(b/1024).toFixed(0)+'KB':(b/1048576).toFixed(1)+'MB';}
+function renderPreview(){
+  const p=document.getElementById("preview");
+  p.innerHTML=attachments.map((a,i)=>a.kind==="image"
+    ?`<div class="pv"><img src="${a.dataUrl}"/><button class="x" onclick="rmAtt(${i})">×</button></div>`
+    :`<div class="pv"><div class="file">📄 ${a.name} <small>(${fmtSize(a.size)})</small></div><button class="x" onclick="rmAtt(${i})">×</button></div>`
+  ).join("");
+}
+function rmAtt(i){attachments.splice(i,1);renderPreview();}
+
+function attHtml(atts){
+  if(!atts||!atts.length)return"";
+  return `<div class="atts">${atts.map(a=>a.kind==="image"
+    ?`<img class="att-img" src="${a.dataUrl}"/>`
+    :`<span class="att-file">📄 ${a.name}</span>`).join("")}</div>`;
+}
+function pushMsg(role,text,atts,initial,avBg){
+  const m=document.getElementById("msgs");
+  const div=document.createElement("div");
+  div.className="msg "+(role==="user"?"user":"bot");
+  div.innerHTML=`${role==="bot"?`<div class="b-av" style="background:${avBg}">${initial}</div>`:`<div class="b-av">我</div>`}
+    <div class="bubble">${attHtml(atts)}${escapeHtml(text)}</div>`;
+  m.appendChild(div);m.scrollTop=m.scrollHeight;return div;
+}
+function escapeHtml(s){return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+
+/* 轻量 Markdown 渲染（用于 AI 回复）：标题/粗斜体/列表/引用/代码/链接/分隔线 */
+function mdInline(s){
+  return escapeHtml(s)
+    .replace(/`([^`]+?)`/g,'<code>$1</code>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/__(.+?)__/g,'<strong>$1</strong>')
+    .replace(/(^|[^*])\*([^*\n]+?)\*/g,'$1<em>$2</em>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+}
+function mdToHtml(md){
+  if(!md) return "";
+  const lines=md.replace(/\r\n/g,"\n").split("\n");
+  let html="",inUl=false,inOl=false,inCode=false,codeBuf="";
+  const closeLists=()=>{if(inUl){html+="</ul>";inUl=false;}if(inOl){html+="</ol>";inOl=false;}};
+  for(let raw of lines){
+    // 代码块 ```
+    if(/^\s*```/.test(raw)){
+      if(inCode){html+="<pre><code>"+escapeHtml(codeBuf)+"</code></pre>";inCode=false;codeBuf="";}
+      else{closeLists();inCode=true;codeBuf="";}
+      continue;
+    }
+    if(inCode){codeBuf+=(codeBuf?"\n":"")+raw;continue;}
+    const line=raw.replace(/\s+$/,"");
+    if(!line.trim()){closeLists();continue;}
+    if(/^\s*([-*_])\1{2,}\s*$/.test(line)){closeLists();html+="<hr>";continue;}
+    let m;
+    if(m=line.match(/^(#{1,6})\s+(.*)$/)){closeLists();const lv=Math.min(m[1].length,6);html+=`<h${lv}>${mdInline(m[2])}</h${lv}>`;continue;}
+    if(m=line.match(/^\s*>\s?(.*)$/)){closeLists();html+=`<blockquote>${mdInline(m[1])}</blockquote>`;continue;}
+    if(m=line.match(/^\s*[-*+]\s+(.*)$/)){if(inOl){html+="</ol>";inOl=false;}if(!inUl){html+="<ul>";inUl=true;}html+=`<li>${mdInline(m[1])}</li>`;continue;}
+    if(m=line.match(/^\s*\d+[.)]\s+(.*)$/)){if(inUl){html+="</ul>";inUl=false;}if(!inOl){html+="<ol>";inOl=true;}html+=`<li>${mdInline(m[1])}</li>`;continue;}
+    closeLists();
+    html+=`<p>${mdInline(line)}</p>`;
+  }
+  if(inCode)html+="<pre><code>"+escapeHtml(codeBuf)+"</code></pre>";
+  closeLists();
+  return html;
+}
+function showErr(msg){const e=document.getElementById("chat-err");e.innerHTML=`<div class="err">${msg}</div>`;}
+function clearErr(){const e=document.getElementById("chat-err");if(e)e.innerHTML="";}
+
+async function doSend(expert){
+  const input=document.getElementById("input");
+  const text=input.value.trim();
+  if(!text && !attachments.length)return;
+  clearErr();
+  const sent=[...attachments];
+  pushMsg("user",text,sent,expert.initial,expert.pfAvBg);
+  input.value="";input.style.height="auto";attachments=[];renderPreview();
+
+  // typing 指示
+  const m=document.getElementById("msgs");
+  const t=document.createElement("div");t.className="msg bot";
+  t.innerHTML=`<div class="b-av" style="background:${expert.pfAvBg}">${expert.initial}</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  m.appendChild(t);m.scrollTop=m.scrollHeight;
+  document.getElementById("send").disabled=true;
+
+  try{
+    const reply=await callBailian(text,sent);
+    t.querySelector(".bubble").innerHTML=mdToHtml(reply);
+  }catch(err){
+    t.remove();
+    showErr("调用失败："+err.message+"　（若为 CORS/网络问题，请运行随附 proxy.js 并把 CONFIG.bailian.useProxy 设为 true）");
+  }finally{
+    document.getElementById("send").disabled=false;
+    m.scrollTop=m.scrollHeight;
+  }
+}
+
+/* 通过代理把本地文件上传到百炼临时 OSS，返回 oss:// 链接 */
+async function uploadFileViaProxy(att){
+  const cfg=CONFIG.bailian;
+  const res=await fetch(cfg.proxyBase+"/upload-file",{
+    method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      filename:att.name, contentType:att.mime,
+      dataBase64:(att.dataUrl.split(",")[1]||""), model:cfg.fileModel
+    })
+  });
+  const txt=await res.text();
+  if(!res.ok) throw new Error("文件「"+att.name+"」上传失败：HTTP "+res.status+" "+txt);
+  let j;try{j=JSON.parse(txt);}catch(_){throw new Error("文件上传返回异常："+txt.slice(0,160));}
+  if(!j.ossUrl) throw new Error("文件上传未返回链接："+txt.slice(0,160));
+  return j.ossUrl;
+}
+
+/* 调用百炼「智能体应用」completion 接口（支持图片 + 文件多模态） */
+async function callBailian(text,atts){
+  const cfg=CONFIG.bailian;
+  if(!cfg.appId||cfg.appId.indexOf("APP_ID")>-1) throw new Error("尚未配置 app_id，请在 CONFIG.bailian.appId 填入罗琼芝的应用 ID");
+
+  const imgs=atts.filter(a=>a.kind==="image");
+  const files=atts.filter(a=>a.kind==="file");
+
+  const body={input:{prompt:text||"请查看我上传的内容并解答。"}, parameters:{}, debug:{}};
+  if(sessionId) body.input.session_id=sessionId;
+
+  // 图片：base64 直传 image_list（需应用为 VL 视觉模型）
+  if(imgs.length) body.input.image_list=imgs.map(i=>i.dataUrl);
+
+  // 文件：先上传得到 oss:// 链接，放入 file_list（需开启代理）
+  if(files.length){
+    if(!cfg.useProxy) throw new Error("读取文件需先开启代理：运行「node proxy.js」并把 CONFIG.bailian.useProxy 设为 true。（图片可直接发送，无需代理）");
+    const urls=[];
+    for(const f of files){ urls.push(await uploadFileViaProxy(f)); }
+    body.input.file_list=urls;
+  }
+
+  const base=cfg.useProxy?cfg.proxyBase:cfg.directBase;
+  const url=base+"/api/v1/apps/"+cfg.appId+"/completion";
+  const headers={"Content-Type":"application/json"};
+  if(!cfg.useProxy){                              // 直连时本页注入；代理模式由 proxy 注入
+    headers["Authorization"]="Bearer "+cfg.apiKey;
+    headers["X-DashScope-OssResourceResolve"]="enable";
+  }
+
+  const res=await fetch(url,{method:"POST",headers,body:JSON.stringify(body)});
+  if(!res.ok){
+    let detail="";try{detail=JSON.stringify(await res.json());}catch(_){detail=res.statusText;}
+    throw new Error("HTTP "+res.status+" "+detail);
+  }
+  const data=await res.json();
+  if(data.output&&data.output.session_id) sessionId=data.output.session_id;
+  const out=data.output&&(data.output.text||data.output.response);
+  if(!out) throw new Error("返回为空："+JSON.stringify(data).slice(0,200));
+  return out;
+}
+
+/* ============ 路由 ============ */
+function showView(v){
+  document.querySelectorAll(".view").forEach(s=>s.classList.remove("active"));
+  document.getElementById(v).classList.add("active");
+  window.scrollTo(0,0);
+}
+function goExpert(id){location.hash="#/expert/"+id;}
+function focusChat(ev){ev.preventDefault();const a=document.getElementById("chat-anchor");if(a)a.scrollIntoView({behavior:"smooth"});setTimeout(()=>{const i=document.getElementById("input");if(i&&!i.disabled)i.focus();},400);}
+
+function route(){
+  const h=location.hash||"#/experts";
+  const mExpert=h.match(/#\/expert\/(\w+)/);
+  if(mExpert&&EXPERTS[mExpert[1]]){
+    renderDetail(EXPERTS[mExpert[1]]);
+    showView("view-detail");
+  }else{
+    showView("view-market");
+  }
+}
+window.addEventListener("hashchange",route);
+renderGrid();
+route();
+</script>
+</body>
+</html>
