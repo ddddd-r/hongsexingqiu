@@ -17,7 +17,7 @@
    ============================================================ */
 const http = require("http");
 
-const PORT    = 8787;
+const PORT    = process.env.PORT || 8787;
 const API_KEY = "sk-50ca2008e8414c2cbe5bc11fabd9f715"; // 罗琼芝
 const TARGET  = "https://dashscope.aliyuncs.com";
 
