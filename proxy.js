@@ -62,7 +62,21 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
 
   try {
-    // ① 文件上传端点
+    // ① 根路径状态端点
+    if (req.url === "/" && req.method === "GET") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({
+        status: "ok",
+        service: "红色星球 · 百炼 API 代理",
+        version: "1.0.0",
+        endpoints: [
+          { method: "POST", path: "/api/v1/apps/{appId}/completion", description: "对话补全（转发至 DashScope）" },
+          { method: "POST", path: "/upload-file",                    description: "本地文件上传至百炼临时 OSS" }
+        ]
+      }, null, 2));
+    }
+
+    // ② 文件上传端点
     if (req.url === "/upload-file" && req.method === "POST") {
       const { filename, contentType, dataBase64, model } = JSON.parse(await readBody(req));
       const ossUrl = await uploadToOss(filename, contentType, dataBase64, model || "qwen-max");
@@ -70,7 +84,7 @@ const server = http.createServer(async (req, res) => {
       return res.end(JSON.stringify({ ossUrl }));
     }
 
-    // ② 其余请求透传到百炼，注入鉴权与 OSS 解析头
+    // ③ 其余请求透传到百炼，注入鉴权与 OSS 解析头
     const body = await readBody(req);
     const r = await fetch(TARGET + req.url, {
       method: req.method,
