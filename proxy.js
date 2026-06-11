@@ -16,8 +16,11 @@
       临时上传，返回 oss:// 链接，供 file_list 使用。
    ============================================================ */
 const http = require("http");
+const fs   = require("fs");
+const path = require("path");
 
 const PORT    = process.env.PORT || 8787;
+const PAGE    = path.join(__dirname, "experts.html");
 const API_KEY = "sk-50ca2008e8414c2cbe5bc11fabd9f715"; // 罗琼芝
 const TARGET  = "https://dashscope.aliyuncs.com";
 
@@ -62,14 +65,25 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
 
   try {
-    // ① 根路径状态端点
-    if (req.url === "/" && req.method === "GET") {
+    // ① 页面：根路径 / 与 /experts.html 返回静态页面
+    const urlPath = req.url.split("?")[0];
+    if ((urlPath === "/" || urlPath === "/experts.html") && req.method === "GET") {
+      return fs.readFile(PAGE, (err, buf) => {
+        if (err) { res.writeHead(404, { "Content-Type":"text/plain; charset=utf-8" }); return res.end("experts.html 未找到"); }
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        res.end(buf);
+      });
+    }
+
+    // ① bis 状态端点（JSON）
+    if (urlPath === "/status" && req.method === "GET") {
       res.writeHead(200, { "Content-Type": "application/json" });
       return res.end(JSON.stringify({
         status: "ok",
         service: "红色星球 · 百炼 API 代理",
         version: "1.0.0",
         endpoints: [
+          { method: "GET",  path: "/",                                description: "专家市场页面 (experts.html)" },
           { method: "POST", path: "/api/v1/apps/{appId}/completion", description: "对话补全（转发至 DashScope）" },
           { method: "POST", path: "/upload-file",                    description: "本地文件上传至百炼临时 OSS" }
         ]
@@ -109,6 +123,8 @@ server.listen(PORT, () => {
   const v = parseInt(process.versions.node.split(".")[0], 10);
   if (v < 18) console.warn("⚠️  检测到 Node " + process.versions.node + "，请升级到 18+ 以支持文件上传（fetch/FormData/Blob）。");
   console.log(`✅ 百炼代理已启动: http://localhost:${PORT}  → ${TARGET}`);
-  console.log("   · 对话转发  /api/v1/apps/{appId}/completion");
+  console.log("   · 页面      GET  /  (experts.html)");
+  console.log("   · 对话转发  POST /api/v1/apps/{appId}/completion");
   console.log("   · 文件上传  POST /upload-file");
+  console.log("   · 状态      GET  /status");
 });
