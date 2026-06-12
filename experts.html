@@ -189,6 +189,11 @@
   .msg.bot .bubble hr{border:none;border-top:1px solid var(--line);margin:10px 0}
   .msg.bot .bubble blockquote{border-left:3px solid var(--red);background:#fff7f6;margin:8px 0;padding:6px 12px;color:var(--ink-2);border-radius:0 8px 8px 0}
   .msg.bot .bubble>:first-child{margin-top:0}.msg.bot .bubble>:last-child{margin-bottom:0}
+  .msg.bot .bubble .md-table{overflow-x:auto;margin:8px 0;-webkit-overflow-scrolling:touch}
+  .msg.bot .bubble table{border-collapse:collapse;width:100%;font-size:13px}
+  .msg.bot .bubble th,.msg.bot .bubble td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top;white-space:nowrap}
+  .msg.bot .bubble thead th{background:#f7f8fc;font-weight:700;color:var(--ink)}
+  .msg.bot .bubble tbody tr:nth-child(even){background:#fafbfe}
   .copy-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;margin-top:8px;padding:0;
     border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink-3);cursor:pointer;transition:.15s}
   .copy-btn:hover{color:var(--red);border-color:#f3b8b4;background:var(--red-soft)}
@@ -659,7 +664,10 @@ function mdToHtml(md){
   const lines=md.replace(/\r\n/g,"\n").split("\n");
   let html="",inUl=false,inOl=false,inCode=false,codeBuf="";
   const closeLists=()=>{if(inUl){html+="</ul>";inUl=false;}if(inOl){html+="</ol>";inOl=false;}};
-  for(let raw of lines){
+  const splitRow=s=>s.trim().replace(/^\|/,"").replace(/\|$/,"").split("|").map(c=>c.trim());
+  const isSep=s=>/-/.test(s)&&/^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/.test(s);
+  for(let i=0;i<lines.length;i++){
+    let raw=lines[i];
     // 代码块 ```
     if(/^\s*```/.test(raw)){
       if(inCode){html+="<pre><code>"+escapeHtml(codeBuf)+"</code></pre>";inCode=false;codeBuf="";}
@@ -669,6 +677,21 @@ function mdToHtml(md){
     if(inCode){codeBuf+=(codeBuf?"\n":"")+raw;continue;}
     const line=raw.replace(/\s+$/,"");
     if(!line.trim()){closeLists();continue;}
+    // 表格：当前行含 |，且下一行是分隔行（|---|---|）
+    if(line.indexOf("|")>=0 && i+1<lines.length && isSep(lines[i+1])){
+      closeLists();
+      const headers=splitRow(line);
+      const aligns=splitRow(lines[i+1]).map(c=>{const l=c.startsWith(":"),r=c.endsWith(":");return l&&r?"center":r?"right":l?"left":"";});
+      i++; // 跳过分隔行
+      const rows=[];
+      while(i+1<lines.length && lines[i+1].indexOf("|")>=0 && lines[i+1].trim()){ i++; rows.push(splitRow(lines[i])); }
+      let t='<div class="md-table"><table><thead><tr>';
+      headers.forEach((h,idx)=>{t+=`<th${aligns[idx]?` style="text-align:${aligns[idx]}"`:""}>${mdInline(h)}</th>`;});
+      t+="</tr></thead><tbody>";
+      rows.forEach(r=>{t+="<tr>";for(let idx=0;idx<headers.length;idx++){t+=`<td${aligns[idx]?` style="text-align:${aligns[idx]}"`:""}>${mdInline(r[idx]||"")}</td>`;}t+="</tr>";});
+      t+="</tbody></table></div>";
+      html+=t;continue;
+    }
     if(/^\s*([-*_])\1{2,}\s*$/.test(line)){closeLists();html+="<hr>";continue;}
     let m;
     if(m=line.match(/^(#{1,6})\s+(.*)$/)){closeLists();const lv=Math.min(m[1].length,6);html+=`<h${lv}>${mdInline(m[2])}</h${lv}>`;continue;}
