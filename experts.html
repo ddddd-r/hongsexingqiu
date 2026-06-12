@@ -409,7 +409,10 @@ const EXPERTS = {
       {t:"股权架构设计",d:"创始人持股、员工激励与控制权的架构搭建。",price:"¥19,800 起"},
       {t:"上市财务辅导",d:"IPO/北交所前财务规范化与中介对接辅导。",price:"按项目报价"}
     ],
-    hasBot:false
+    hasBot:true,
+    appId:"f4d2398ad59549eb8d51e254065e3399",
+    botName:"郑浩 · AI 税务顾问",
+    botIntro:"关于税务筹划、高新认定、股权架构、上市辅导等问题，您都可以问我，也可以上传图片或文件让我帮您分析。"
   },
   luoqiongzhi: {
     id:"luoqiongzhi", name:"罗琼芝", initial:"罗", avClass:"av-lqz", pfAvBg:"linear-gradient(135deg,#ff6a5a,#B0141A)",
@@ -428,7 +431,9 @@ const EXPERTS = {
       {t:"并购重组财务支持",d:"尽调、估值与交易结构的财务方案设计。",price:"按项目报价"}
     ],
     hasBot:true,
-    botName:"罗琼芝 · AI 财务顾问"
+    appId:"c059b8f3855c421da7ca354f5cf671cc",
+    botName:"罗琼芝 · AI 财务顾问",
+    botIntro:"关于财务管理、企业融资、工商合规等问题，您都可以问我，也可以上传图片或文件让我帮您分析。"
   }
 };
 
@@ -511,7 +516,7 @@ function renderChat(e){
     <div class="msgs" id="msgs">
       <div class="msg bot">
         <div class="b-av" style="background:${avBg}">${e.initial}</div>
-        <div class="bubble">您好，我是${e.name}的 AI 助手 👋 ${e.hasBot?'关于财务管理、企业融资、工商合规等问题，您都可以问我，也可以上传图片或文件让我帮您分析。':'我的智能体正在接入中，您可以先浏览上方的服务项目，或留言预约人工咨询。'}</div>
+        <div class="bubble">您好，我是${e.name}的 AI 助手 👋 ${e.hasBot?(e.botIntro||'有什么问题都可以问我，也可以上传图片或文件让我帮您分析。'):'我的智能体正在接入中，您可以先浏览上方的服务项目，或留言预约人工咨询。'}</div>
       </div>
     </div>
     <div class="composer">
@@ -667,7 +672,7 @@ async function doSend(expert){
   document.getElementById("send").disabled=true;
 
   try{
-    const reply=await callBailian(text,sent);
+    const reply=await callBailian(text,sent,expert);
     t.querySelector(".bubble").innerHTML=mdToHtml(reply);
   }catch(err){
     t.remove();
@@ -696,9 +701,10 @@ async function uploadFileViaProxy(att){
 }
 
 /* 调用百炼「智能体应用」completion 接口（支持图片 + 文件多模态） */
-async function callBailian(text,atts){
+async function callBailian(text,atts,expert){
   const cfg=CONFIG.bailian;
-  if(!cfg.appId||cfg.appId.indexOf("APP_ID")>-1) throw new Error("尚未配置 app_id，请在 CONFIG.bailian.appId 填入罗琼芝的应用 ID");
+  const appId=(expert&&expert.appId)||cfg.appId;
+  if(!appId||appId.indexOf("APP_ID")>-1) throw new Error("该专家尚未配置 app_id（应用 ID）");
 
   const imgs=atts.filter(a=>a.kind==="image");
   const files=atts.filter(a=>a.kind==="file");
@@ -718,7 +724,7 @@ async function callBailian(text,atts){
   }
 
   const base=cfg.useProxy?cfg.proxyBase:cfg.directBase;
-  const url=base+"/api/v1/apps/"+cfg.appId+"/completion";
+  const url=base+"/api/v1/apps/"+appId+"/completion";
   const headers={"Content-Type":"application/json"};
   if(!cfg.useProxy){                              // 直连时本页注入；代理模式由 proxy 注入
     headers["Authorization"]="Bearer "+cfg.apiKey;
