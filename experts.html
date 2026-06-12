@@ -97,7 +97,8 @@
   .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
   @media(max-width:760px){.grid{grid-template-columns:1fr}}
   .ecard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-    padding:24px;box-shadow:var(--shadow-sm);transition:.22s;cursor:pointer;position:relative;overflow:hidden}
+    padding:24px;box-shadow:var(--shadow-sm);transition:.22s;cursor:pointer;position:relative;overflow:hidden;
+    display:flex;flex-direction:column}
   .ecard:hover{transform:translateY(-4px);box-shadow:var(--shadow);border-color:rgba(226,35,26,.25)}
   .ecard .ribbon{position:absolute;top:16px;right:-34px;transform:rotate(45deg);
     background:var(--gold);color:#3a2a05;font-size:11px;font-weight:800;padding:4px 40px;letter-spacing:1px}
@@ -113,7 +114,7 @@
   .tags{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0}
   .tag{font-size:12px;color:var(--ink-2);background:#F2F3F8;border-radius:6px;padding:4px 9px}
   .ec-bio{color:var(--ink-2);font-size:14px;min-height:44px}
-  .ec-foot{display:flex;align-items:center;justify-content:space-between;margin-top:18px;
+  .ec-foot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;
     padding-top:16px;border-top:1px solid var(--line)}
   .ec-price{font-size:13px;color:var(--ink-3)}
   .ec-price b{color:var(--red);font-size:18px;font-weight:800}
