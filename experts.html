@@ -444,7 +444,7 @@ const EXPERTS = {
     hasBot:true,
     appId:"c059b8f3855c421da7ca354f5cf671cc",
     botName:"罗琼芝 · AI 财务顾问",
-    botIntro:"关于财务管理、企业融资、工商合规等问题，您都可以问我，也可以上传图片或文件让我帮您分析。"
+    botIntro:"关于财务管理、企业融资、工商合规等问题，您都可以问我。"
   }
 };
 
@@ -527,7 +527,7 @@ function renderChat(e){
     <div class="msgs" id="msgs">
       <div class="msg bot">
         <div class="b-av" style="background:${avBg}">${e.initial}</div>
-        <div class="bubble">您好，我是${e.name}的 AI 助手 👋 ${e.hasBot?(e.botIntro||'有什么问题都可以问我，也可以上传图片或文件让我帮您分析。'):'我的智能体正在接入中，您可以先浏览上方的服务项目，或留言预约人工咨询。'}</div>
+        <div class="bubble">您好，我是${e.name}的 AI 助手 👋 ${e.hasBot?(e.botIntro||'有什么问题都可以问我。'):'我的智能体正在接入中，您可以先浏览上方的服务项目，或留言预约人工咨询。'}</div>
       </div>
     </div>
     <div class="composer">
