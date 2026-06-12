@@ -672,8 +672,12 @@ async function doSend(expert){
   document.getElementById("send").disabled=true;
 
   try{
-    const reply=await callBailian(text,sent,expert);
-    t.querySelector(".bubble").innerHTML=mdToHtml(reply);
+    const bubble=t.querySelector(".bubble");
+    const reply=await callBailian(text,sent,expert,(full)=>{
+      bubble.innerHTML=mdToHtml(full);
+      m.scrollTop=m.scrollHeight;
+    });
+    bubble.innerHTML=mdToHtml(reply);
   }catch(err){
     t.remove();
     showErr("调用失败："+err.message+"　（若为 CORS/网络问题，请运行随附 proxy.js 并把 CONFIG.bailian.useProxy 设为 true）");
@@ -701,7 +705,7 @@ async function uploadFileViaProxy(att){
 }
 
 /* 调用百炼「智能体应用」completion 接口（支持图片 + 文件多模态） */
-async function callBailian(text,atts,expert){
+async function callBailian(text,atts,expert,onChunk){
   const cfg=CONFIG.bailian;
   const appId=(expert&&expert.appId)||cfg.appId;
   if(!appId||appId.indexOf("APP_ID")>-1) throw new Error("该专家尚未配置 app_id（应用 ID）");
@@ -723,9 +727,12 @@ async function callBailian(text,atts,expert){
     body.input.file_list=urls;
   }
 
+  // 流式输出：开启 SSE 与增量返回
+  body.parameters.incremental_output=true;
+
   const base=cfg.useProxy?cfg.proxyBase:cfg.directBase;
   const url=base+"/api/v1/apps/"+appId+"/completion";
-  const headers={"Content-Type":"application/json"};
+  const headers={"Content-Type":"application/json","X-DashScope-SSE":"enable"};
   if(!cfg.useProxy){                              // 直连时本页注入；代理模式由 proxy 注入
     headers["Authorization"]="Bearer "+cfg.apiKey;
     headers["X-DashScope-OssResourceResolve"]="enable";
@@ -736,11 +743,31 @@ async function callBailian(text,atts,expert){
     let detail="";try{detail=JSON.stringify(await res.json());}catch(_){detail=res.statusText;}
     throw new Error("HTTP "+res.status+" "+detail);
   }
-  const data=await res.json();
-  if(data.output&&data.output.session_id) sessionId=data.output.session_id;
-  const out=data.output&&(data.output.text||data.output.response);
-  if(!out) throw new Error("返回为空："+JSON.stringify(data).slice(0,200));
-  return out;
+
+  // 读取 SSE 流，逐块累加并回调渲染
+  const reader=res.body.getReader();
+  const decoder=new TextDecoder();
+  let buf="", full="";
+  while(true){
+    const {done,value}=await reader.read();
+    if(done) break;
+    buf+=decoder.decode(value,{stream:true});
+    let nl;
+    while((nl=buf.indexOf("\n"))>=0){
+      const line=buf.slice(0,nl).trim(); buf=buf.slice(nl+1);
+      if(!line.startsWith("data:")) continue;
+      const payload=line.slice(5).trim();
+      if(!payload||payload==="[DONE]") continue;
+      let j; try{ j=JSON.parse(payload); }catch(_){ continue; }
+      if(j.output){
+        if(j.output.session_id) sessionId=j.output.session_id;
+        const delta=j.output.text||j.output.response||"";
+        if(delta){ full+=delta; onChunk&&onChunk(full); }
+      }
+    }
+  }
+  if(!full) throw new Error("返回为空");
+  return full;
 }
 
 /* ============ 路由 ============ */

@@ -18,6 +18,7 @@
 const http = require("http");
 const fs   = require("fs");
 const path = require("path");
+const { Readable } = require("stream");
 
 const PORT    = process.env.PORT || 8787;
 const PAGE    = path.join(__dirname, "experts.html");
@@ -100,18 +101,24 @@ const server = http.createServer(async (req, res) => {
 
     // ③ 其余请求透传到百炼，注入鉴权与 OSS 解析头
     const body = await readBody(req);
+    const upstreamHeaders = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + API_KEY,
+      "X-DashScope-OssResourceResolve": "enable"
+    };
+    // 透传流式开关：前端开启 SSE 时把头转发给百炼
+    if (req.headers["x-dashscope-sse"]) upstreamHeaders["X-DashScope-SSE"] = req.headers["x-dashscope-sse"];
+
     const r = await fetch(TARGET + req.url, {
       method: req.method,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + API_KEY,
-        "X-DashScope-OssResourceResolve": "enable"
-      },
+      headers: upstreamHeaders,
       body: (req.method === "GET" || req.method === "HEAD") ? undefined : body
     });
-    const text = await r.text();
+
+    // 流式管道转发：不缓冲，逐块写回客户端（兼容普通 JSON 与 SSE）
     res.writeHead(r.status, { "Content-Type": r.headers.get("content-type") || "application/json" });
-    res.end(text);
+    if (r.body) { Readable.fromWeb(r.body).pipe(res); }
+    else { res.end(await r.text()); }
 
   } catch (e) {
     res.writeHead(500, { "Content-Type":"application/json" });
