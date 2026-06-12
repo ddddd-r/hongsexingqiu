@@ -189,6 +189,11 @@
   .msg.bot .bubble hr{border:none;border-top:1px solid var(--line);margin:10px 0}
   .msg.bot .bubble blockquote{border-left:3px solid var(--red);background:#fff7f6;margin:8px 0;padding:6px 12px;color:var(--ink-2);border-radius:0 8px 8px 0}
   .msg.bot .bubble>:first-child{margin-top:0}.msg.bot .bubble>:last-child{margin-bottom:0}
+  .copy-btn{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;margin-top:8px;padding:0;
+    border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink-3);cursor:pointer;transition:.15s}
+  .copy-btn:hover{color:var(--red);border-color:#f3b8b4;background:var(--red-soft)}
+  .copy-btn.done{color:#15a05a;border-color:#bfe6cf;background:#f0fbf4}
+  .copy-btn svg{width:14px;height:14px}
   .msg.user{align-self:flex-end;flex-direction:row-reverse}
   .msg.user .bubble{background:var(--red);color:#fff;border-top-right-radius:4px}
   .msg.user .b-av{background:#2b3a67}
@@ -516,7 +521,7 @@ function renderChat(e){
     <div class="msgs" id="msgs">
       <div class="msg bot">
         <div class="b-av" style="background:${avBg}">${e.initial}</div>
-        <div class="bubble">您好，我是${e.name}的 AI 助手 👋 ${e.hasBot?(e.botIntro||'有什么问题都可以问我，也可以上传图片或文件让我帮您分析。'):'我的智能体正在接入中，您可以先浏览上方的服务项目，或留言预约人工咨询。'}</div>
+        <div class="bubble">您好，我是${e.name}的 AI 助手 👋 ${e.hasBot?(e.botIntro||'有什么问题都可以问我，也可以上传图片或文件让我帮您分析。'):'我的智能体正在接入中，您可以先浏览上方的服务项目，或留言预约人工咨询。'}${COPY_BTN}</div>
       </div>
     </div>
     <div class="composer">
@@ -535,6 +540,31 @@ function renderChat(e){
 /* ============ 聊天交互 + 百炼接入 ============ */
 let attachments=[];   // {kind:'image'|'file', name, dataUrl, size}
 let sessionId=null;   // 百炼多轮会话 id
+
+/* 复制按钮 */
+const COPY_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>';
+const CHECK_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+const COPY_BTN='<button class="copy-btn" title="复制">'+COPY_ICON+'</button>';
+function fallbackCopy(text,cb){
+  const ta=document.createElement("textarea");
+  ta.value=text; ta.style.position="fixed"; ta.style.opacity="0"; ta.style.left="-9999px";
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand("copy"); cb&&cb(); }catch(_){}
+  document.body.removeChild(ta);
+}
+function copyBubble(btn){
+  const bubble=btn.closest(".bubble"); if(!bubble) return;
+  const text=bubble.innerText.trim();
+  const done=()=>{ btn.classList.add("done"); btn.innerHTML=CHECK_ICON;
+    setTimeout(()=>{ btn.classList.remove("done"); btn.innerHTML=COPY_ICON; },1400); };
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));
+  }else{ fallbackCopy(text,done); }
+}
+if(!window.__copyBound){
+  window.__copyBound=true;
+  document.addEventListener("click",ev=>{ const b=ev.target.closest&&ev.target.closest(".copy-btn"); if(b) copyBubble(b); });
+}
 
 function bindChat(e){
   attachments=[]; sessionId=null;
@@ -677,7 +707,7 @@ async function doSend(expert){
       bubble.innerHTML=mdToHtml(full);
       m.scrollTop=m.scrollHeight;
     });
-    bubble.innerHTML=mdToHtml(reply);
+    bubble.innerHTML=mdToHtml(reply)+COPY_BTN;
   }catch(err){
     t.remove();
     showErr("调用失败："+err.message+"　（若为 CORS/网络问题，请运行随附 proxy.js 并把 CONFIG.bailian.useProxy 设为 true）");
