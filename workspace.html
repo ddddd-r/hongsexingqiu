@@ -116,6 +116,31 @@
   .sugg{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:22px}
   .sugg button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 15px;font-size:13px;color:var(--ink-2);transition:.15s}
   .sugg button:hover{border-color:var(--red);color:var(--red);background:var(--red-soft)}
+  /* 能力卡片 */
+  .caps-label{font-size:12px;color:var(--ink-3);font-weight:600;margin:26px 0 12px;text-align:center;letter-spacing:.5px}
+  .caps{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left}
+  .cap{border:1px solid var(--line);background:#fff;border-radius:12px;padding:14px 15px;display:flex;gap:12px;align-items:flex-start;transition:.16s;cursor:pointer}
+  .cap:hover{border-color:var(--red);box-shadow:0 8px 20px rgba(226,35,26,.09);transform:translateY(-2px)}
+  .cap:last-child{grid-column:1/-1}
+  .cap .ci{width:38px;height:38px;border-radius:10px;background:var(--red-soft);color:var(--red);display:grid;place-items:center;flex:none}
+  .cap .ct{min-width:0}
+  .cap .ct b{font-size:14px;display:block}
+  .cap .ct small{font-size:12px;color:var(--ink-3);display:block;font-weight:400}
+  /* 智能体工作过程 */
+  .agent-work{display:flex;flex-direction:column;gap:10px;padding:3px 2px}
+  .aw-step{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--ink-3);transition:.25s}
+  .aw-step.cur{color:var(--ink);font-weight:600}
+  .aw-step.done{color:var(--ink-2)}
+  .aw-step svg{color:var(--green);flex:none}
+  .aw-dot{width:14px;height:14px;border:2px solid #d2d6e2;border-radius:50%;flex:none}
+  .aw-spin{width:14px;height:14px;border:2px solid var(--red);border-top-color:transparent;border-radius:50%;flex:none;animation:awsp .7s linear infinite}
+  @keyframes awsp{to{transform:rotate(360deg)}}
+  /* 下一步行动 */
+  .next-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 0 43px}
+  .na-label{font-size:12px;color:var(--ink-3);font-weight:700;margin-right:2px}
+  .next-actions button{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 13px;font-size:12.5px;color:var(--ink-2);transition:.15s}
+  .next-actions button:hover{border-color:var(--red);color:var(--red);background:var(--red-soft)}
+  .next-actions button svg{flex:none}
 
   .err{max-width:780px;margin:0 auto;width:100%;padding:0 24px}
   .err>div{background:#fff3f2;border:1px solid #f5c2bd;color:var(--red-deep);font-size:13px;padding:11px 14px;border-radius:10px}
@@ -171,7 +196,7 @@
     <div class="top">
       <button class="menu-btn" onclick="openSide()"><span data-ic="menu" data-sz="18"></span></button>
       <div class="bav" id="top-av"></div>
-      <div class="info"><b id="top-name">AI 助手</b><small>在线</small></div>
+      <div class="info"><b id="top-name">AI 助手</b><small id="top-status">在线</small></div>
       <span class="sub-badge" id="sub-badge">✦ 深度服务订阅</span>
       <div class="spacer"></div>
       <button class="lang-btn" id="lang-toggle" onclick="toggleLang()"><span data-ic="globe" data-sz="15"></span><span class="lang-label">繁體</span></button>
@@ -209,6 +234,12 @@ const ICON={
   copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
   check:'<path d="M20 6 9 17l-5-5"/>',
   globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14.5 14.5 0 0 1 0 18 14.5 14.5 0 0 1 0-18z"/>',
+  book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  chart:'<path d="M3 3v18h18"/><path d="M8 17v-5"/><path d="M13 17V8"/><path d="M18 17v-8"/>',
+  doc:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h4"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  spark:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/>',
 };
 function ic(n,s=18){ return '<svg viewBox="0 0 24 24" width="'+s+'" height="'+s+'" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(ICON[n]||'')+'</svg>'; }
 function hydrate(root=document){ root.querySelectorAll('[data-ic]').forEach(el=>{ if(!el.__h){el.innerHTML=ic(el.dataset.ic,+(el.dataset.sz||18));el.__h=1;} }); }
@@ -231,6 +262,25 @@ const EXPERTS={
 };
 function getExpertId(){ const p=new URLSearchParams(location.search); const id=p.get("expert"); return EXPERTS[id]?id:"luoqiongzhi"; }
 const EXP=EXPERTS[getExpertId()];
+
+/* 智能体能力 / 工作过程 / 下一步行动 */
+const SKILLS=[
+  {ic:"book",t:"知识库问答",d:"基于专家最新文稿与案例精准作答",p:"请基于你的专属知识库，回答我的问题。"},
+  {ic:"chart",t:"报表 / 票据分析",d:"上传报表或发票，自动提取与风险识别",p:"我想上传一份财务报表，请帮我分析。"},
+  {ic:"doc",t:"方案生成",d:"输出可落地的定制化方案与 SOP",p:"请帮我生成一份可落地的方案。"},
+  {ic:"search",t:"政策检索",d:"实时匹配最新政策与合规边界",p:"请帮我检索与此相关的最新政策与合规要点。"},
+  {ic:"user",t:"转人工专家",d:"复杂问题一键直通专家本人",p:"这个问题比较复杂，我想预约转人工专家。"},
+];
+const WORK_STEPS=["理解您的需求","检索专属知识库","分析与推理","生成专业建议"];
+const NEXT=[
+  {ic:"book",t:"匹配实战案例",p:"请结合你的知识库，匹配与上述内容相关的实战案例。"},
+  {ic:"doc",t:"生成方案文档",p:"请基于以上内容，帮我整理成一份可落地的方案文档。"},
+  {ic:"user",t:"转人工专家",p:"我想就这个问题预约转人工专家进一步沟通。"},
+];
+function workHtml(active){ return '<div class="agent-work">'+WORK_STEPS.map((s,i)=>{
+  const st=i<active?"done":i===active?"cur":""; const icon=i<active?ic("check",14):i===active?'<span class="aw-spin"></span>':'<span class="aw-dot"></span>';
+  return '<div class="aw-step '+st+'">'+icon+'<span>'+s+'</span></div>'; }).join("")+'</div>'; }
+function nextActionsBar(){ return '<div class="next-actions"><span class="na-label">下一步</span>'+NEXT.map(n=>'<button onclick="quickAsk(\''+escAttr(n.p)+'\')">'+ic(n.ic,14)+'<span>'+esc(n.t)+'</span></button>').join("")+'</div>'; }
 
 /* ===== 会话存储 ===== */
 const WS_KEY="ws_convos_v1";
@@ -270,7 +320,8 @@ function renderMessages(){
       <div class="wbav" style="background:${EXP.avBg}">${EXP.initial}</div>
       <h2>${esc(EXP.botName)}</h2>
       <p>${esc(EXP.intro)}</p>
-      <div class="sugg">${(EXP.sugg||[]).map(s=>`<button onclick="quickAsk('${escAttr(s)}')">${esc(s)}</button>`).join("")}</div>
+      <div class="caps-label">我能为您做这些 · 智能体技能</div>
+      <div class="caps">${SKILLS.map(s=>`<button class="cap" onclick="quickAsk('${escAttr(s.p)}')"><span class="ci">${ic(s.ic,18)}</span><span class="ct"><b>${esc(s.t)}</b><small>${esc(s.d)}</small></span></button>`).join("")}</div>
     </div>`;
     return;
   }
@@ -302,19 +353,26 @@ async function doSend(){
   renderMessages(); renderSidebar();
   input.value="";input.style.height="auto";attachments=[];renderPreview();
 
+  document.querySelectorAll(".next-actions").forEach(e=>e.remove());
   const m=document.getElementById("msgs"); const inner=document.getElementById("msgs-inner");
   const t=document.createElement("div"); t.className="msg bot";
-  t.innerHTML=`<div class="b-av" style="background:${EXP.avBg}">${EXP.initial}</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  t.innerHTML=`<div class="b-av" style="background:${EXP.avBg}">${EXP.initial}</div><div class="bubble">${workHtml(0)}</div>`;
   inner.appendChild(t); m.scrollTop=m.scrollHeight;
   const bubble=t.querySelector(".bubble");
+  let stp=0; const wiv=setInterval(()=>{ stp=Math.min(stp+1,WORK_STEPS.length-1); bubble.innerHTML=workHtml(stp); m.scrollTop=m.scrollHeight; },680);
+  let firstChunk=false;
   document.getElementById("send").disabled=true;
   try{
-    const reply=await callBailian(text,sent,EXP,(full)=>{ bubble.innerHTML=mdToHtml(full); m.scrollTop=m.scrollHeight; });
+    const reply=await callBailian(text,sent,EXP,(full)=>{ if(!firstChunk){firstChunk=true;clearInterval(wiv);} bubble.innerHTML=mdToHtml(full); m.scrollTop=m.scrollHeight; });
+    clearInterval(wiv);
     bubble.innerHTML=mdToHtml(reply)+COPY_BTN;
     cur.msgs.push({role:"bot",text:reply});
     persistConvo(); renderSidebar();
+    inner.insertAdjacentHTML("beforeend",nextActionsBar());
+    if(window.LANG==="tw"&&typeof convertTree==="function")convertTree(inner.lastElementChild);
+    m.scrollTop=m.scrollHeight;
   }catch(err){
-    t.remove();
+    clearInterval(wiv); t.remove();
     showErr("调用失败："+err.message);
     persistConvo();
   }finally{
@@ -472,6 +530,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   // 身份
   document.getElementById("top-av").style.background=EXP.avBg; document.getElementById("top-av").textContent=EXP.initial;
   document.getElementById("top-name").textContent=EXP.botName;
+  document.getElementById("top-status").innerHTML='<span style="color:var(--green)">● 智能体在线</span><span style="color:var(--ink-3);font-weight:500"> · 已接入专属知识库 · '+SKILLS.length+' 项技能</span>';
   document.getElementById("foot-av").style.background=EXP.avBg; document.getElementById("foot-av").textContent=EXP.initial;
   document.getElementById("foot-name").textContent=EXP.name+" · AI";
   document.getElementById("back-link").href="/#/expert/"+EXP.id;
