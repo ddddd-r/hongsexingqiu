@@ -22,6 +22,8 @@ const { Readable } = require("stream");
 
 const PORT    = process.env.PORT || 8787;
 const PAGE    = path.join(__dirname, "experts.html");
+// 静态页面白名单：路径 → 文件名
+const PAGES   = { "/": "experts.html", "/experts.html": "experts.html", "/portal": "portal.html", "/portal.html": "portal.html" };
 const API_KEY = "sk-50ca2008e8414c2cbe5bc11fabd9f715"; // 罗琼芝
 const TARGET  = "https://dashscope.aliyuncs.com";
 
@@ -66,11 +68,11 @@ const server = http.createServer(async (req, res) => {
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
 
   try {
-    // ① 页面：根路径 / 与 /experts.html 返回静态页面
+    // ① 页面：根路径 / 、/experts.html 、/portal(.html) 返回静态页面
     const urlPath = req.url.split("?")[0];
-    if ((urlPath === "/" || urlPath === "/experts.html") && req.method === "GET") {
-      return fs.readFile(PAGE, (err, buf) => {
-        if (err) { res.writeHead(404, { "Content-Type":"text/plain; charset=utf-8" }); return res.end("experts.html 未找到"); }
+    if (PAGES[urlPath] && req.method === "GET") {
+      return fs.readFile(path.join(__dirname, PAGES[urlPath]), (err, buf) => {
+        if (err) { res.writeHead(404, { "Content-Type":"text/plain; charset=utf-8" }); return res.end(PAGES[urlPath] + " 未找到"); }
         res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
         res.end(buf);
       });
@@ -85,6 +87,7 @@ const server = http.createServer(async (req, res) => {
         version: "1.0.0",
         endpoints: [
           { method: "GET",  path: "/",                                description: "专家市场页面 (experts.html)" },
+          { method: "GET",  path: "/portal.html",                     description: "专家运营门户 (portal.html)" },
           { method: "POST", path: "/api/v1/apps/{appId}/completion", description: "对话补全（转发至 DashScope）" },
           { method: "POST", path: "/upload-file",                    description: "本地文件上传至百炼临时 OSS" }
         ]
