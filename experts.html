@@ -164,7 +164,13 @@
   .vas b{font-size:15px}
   .vas .price{color:var(--red);font-weight:800;font-size:15px;white-space:nowrap}
   .vas p{color:var(--ink-2);font-size:13px;margin-top:5px}
-  .sub-card{margin-top:14px;border:1.5px solid #f3b8b4;border-radius:14px;padding:17px 18px;
+  .svc-list{max-height:392px;overflow-y:auto;padding-right:8px;margin-right:-6px}
+  .svc-list::-webkit-scrollbar{width:7px}
+  .svc-list::-webkit-scrollbar-thumb{background:#d7dbe6;border-radius:6px}
+  .svc-list::-webkit-scrollbar-thumb:hover{background:#c1c6d6}
+  .svc-list::-webkit-scrollbar-track{background:transparent}
+  .svc-list>.svc:last-child,.svc-list>.vas:last-child{margin-bottom:0}
+  .sub-card{margin:0 0 12px;border:1.5px solid #f3b8b4;border-radius:14px;padding:17px 18px;
     background:linear-gradient(135deg,#fff 0%,#fff5f4 100%);position:relative;overflow:hidden}
   .sub-card .stars2{position:absolute;right:-26px;top:-26px;width:96px;height:96px;border-radius:50%;
     background:radial-gradient(circle at 40% 40%,#ffd9d5,transparent 70%);opacity:.7}
@@ -518,18 +524,22 @@ function renderDetail(e){
       <div class="panel">
         <h3><span class="ic">✓</span>基础服务内容</h3>
         <div class="sub">入驻即享的标准化服务</div>
+        <div class="svc-list">
         ${e.base.map(s=>`<div class="svc"><span class="ck">✓</span><div class="t"><b>${s.t}</b><p>${s.p}</p></div></div>`).join("")}
+        </div>
       </div>
       <div class="panel">
         <h3><span class="ic">★</span>增值服务项目</h3>
         <div class="sub">按需选购的专业深度服务</div>
-        ${e.vas.map(v=>`<div class="vas"><div class="row"><b>${v.t}</b><span class="price">${v.price}</span></div><p>${v.d}</p></div>`).join("")}
+        <div class="svc-list">
         <div class="sub-card">
           <div class="stars2"></div>
           <span class="tag">✦ AI 深度服务 · 订阅制</span>
           <h4>AI 深度服务订阅 <span class="sp">¥1,980 / 月起</span></h4>
           <p>订阅专属 AI 智能体的深度陪跑：7×24 优先响应、专属知识库持续更新、复杂问题直通真人专家，并定期主动提醒与经营复盘。</p>
           <button class="sub-btn" onclick="subscribeAI(event)">立即订阅 →</button>
+        </div>
+        ${e.vas.map(v=>`<div class="vas"><div class="row"><b>${v.t}</b><span class="price">${v.price}</span></div><p>${v.d}</p></div>`).join("")}
         </div>
       </div>
     </div>
