@@ -49,6 +49,10 @@
     transition:.2s;box-shadow:0 6px 16px rgba(226,35,26,.28)}
   .cta:hover{background:var(--red-deep);transform:translateY(-1px)}
   @media(max-width:760px){nav.links{display:none}}
+  .lang-btn{margin-left:18px;border:1px solid var(--line);background:#fff;color:var(--ink-2);font-size:13px;
+    font-weight:600;padding:6px 13px;border-radius:999px;cursor:pointer;transition:.16s;flex:none}
+  .lang-btn:hover{border-color:var(--red);color:var(--red)}
+  @media(max-width:760px){.lang-btn{margin-left:auto}}
 
   /* ===== Hero ===== */
   .hero{background:var(--space);color:#fff;position:relative;overflow:hidden}
@@ -309,6 +313,7 @@
       <a href="#/">服务</a>
       <a href="#/">关于我们</a>
     </nav>
+    <button class="lang-btn" id="lang-toggle" title="切换简体 / 繁体">繁體</button>
   </div>
 </header>
 
@@ -769,7 +774,9 @@ async function callBailian(text,atts,expert,onChunk){
   const imgs=atts.filter(a=>a.kind==="image");
   const files=atts.filter(a=>a.kind==="file");
 
-  const body={input:{prompt:text||"请查看我上传的内容并解答。"}, parameters:{}, debug:{}};
+  let prompt=text||"请查看我上传的内容并解答。";
+  if(window.LANG==="tw") prompt+="\n\n（請務必以繁體中文回覆。）";
+  const body={input:{prompt}, parameters:{}, debug:{}};
   if(sessionId) body.input.session_id=sessionId;
 
   // 图片：base64 直传 image_list（需应用为 VL 视觉模型）
@@ -848,6 +855,87 @@ function route(){
 window.addEventListener("hashchange",route);
 renderGrid();
 route();
+
+/* ============ 简体 / 繁体 切换 ============ */
+(function(){
+  window.LANG = localStorage.getItem("lang")==="tw" ? "tw" : "cn";
+  let s2t=null;                       // OpenCC 转换器（懒加载）
+  const btn=document.getElementById("lang-toggle");
+  const SKIP={SCRIPT:1,STYLE:1,NOSCRIPT:1,TEXTAREA:1};
+
+  const ATTRS=["placeholder","title"];
+  const inToggle=node=>{ let p=node&&(node.nodeType===1?node:node.parentNode); while(p){ if(p.id==="lang-toggle")return true; p=p.parentNode; } return false; };
+
+  function convText(n){
+    if(!n.nodeValue.trim()||SKIP[n.parentNode&&n.parentNode.nodeName]||inToggle(n)) return;
+    if(n.__orig===undefined) n.__orig=n.nodeValue;
+    const t=s2t(n.__orig); if(n.nodeValue!==t) n.nodeValue=t;
+  }
+  function convAttrs(el){
+    if(el.nodeType!==1) return;
+    ATTRS.forEach(a=>{
+      if(!el.hasAttribute(a)) return;
+      if(!el.__oa) el.__oa={};
+      if(el.__oa[a]===undefined) el.__oa[a]=el.getAttribute(a);
+      if(el.__oa[a]&&el.__oa[a].trim()) el.setAttribute(a,s2t(el.__oa[a]));
+    });
+  }
+  function convertTree(root){
+    if(!s2t) return;
+    if(root.nodeType===3){ convText(root); return; }
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null);
+    let n; while(n=w.nextNode()) convText(n);
+    convAttrs(root);
+    root.querySelectorAll&&root.querySelectorAll("[placeholder],[title]").forEach(convAttrs);
+  }
+  function restoreTree(root){
+    const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null);
+    let n; while(n=w.nextNode()){ if(n.__orig!==undefined && n.nodeValue!==n.__orig) n.nodeValue=n.__orig; }
+    const restoreAttr=el=>{ if(el.__oa) ATTRS.forEach(a=>{ if(el.__oa[a]!==undefined) el.setAttribute(a,el.__oa[a]); }); };
+    if(root.nodeType===1){ restoreAttr(root); root.querySelectorAll("[placeholder],[title]").forEach(restoreAttr); }
+  }
+
+  // 监听动态内容（路由切换、聊天气泡、流式回复），繁体模式下自动转换
+  const observer=new MutationObserver(muts=>{
+    if(window.LANG!=="tw"||!s2t) return;
+    observer.disconnect();
+    for(const m of muts){
+      if(m.type==="childList") m.addedNodes.forEach(node=>{ if(node.nodeType===1||node.nodeType===3) convertTree(node); });
+      else if(m.type==="characterData" && !inToggle(m.target)) convText(m.target);
+    }
+    startObserver();
+  });
+  function startObserver(){ observer.observe(document.body,{subtree:true,childList:true,characterData:true}); }
+
+  function setLabel(){ if(btn) btn.textContent = window.LANG==="tw" ? "简体" : "繁體"; }
+
+  function apply(lang){
+    window.LANG=lang; localStorage.setItem("lang",lang);
+    document.documentElement.lang = lang==="tw" ? "zh-Hant" : "zh-Hans";
+    observer.disconnect();
+    if(lang==="tw") convertTree(document.body); else restoreTree(document.body);
+    startObserver();
+    setLabel();
+  }
+
+  function ensureConverterThen(cb){
+    if(s2t) return cb();
+    if(window.OpenCC){ s2t=OpenCC.Converter({from:"cn",to:"tw"}); return cb(); }
+    const sc=document.createElement("script");
+    sc.src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.js";
+    sc.onload=()=>{ try{ s2t=OpenCC.Converter({from:"cn",to:"tw"}); cb(); }catch(e){ console.warn("OpenCC 初始化失败",e); } };
+    sc.onerror=()=>{ if(btn){ btn.disabled=true; btn.title="繁体转换库加载失败，请检查网络"; } };
+    document.head.appendChild(sc);
+  }
+
+  if(btn) btn.onclick=()=>{
+    const next = window.LANG==="tw" ? "cn" : "tw";
+    if(next==="tw") ensureConverterThen(()=>apply("tw")); else apply("cn");
+  };
+
+  // 启动时若上次选了繁体，自动应用
+  if(window.LANG==="tw") ensureConverterThen(()=>apply("tw")); else setLabel();
+})();
 </script>
 </body>
 </html>
