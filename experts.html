@@ -774,9 +774,7 @@ async function callBailian(text,atts,expert,onChunk){
   const imgs=atts.filter(a=>a.kind==="image");
   const files=atts.filter(a=>a.kind==="file");
 
-  let prompt=text||"请查看我上传的内容并解答。";
-  if(window.LANG==="tw") prompt+="\n\n（請務必以繁體中文回覆。）";
-  const body={input:{prompt}, parameters:{}, debug:{}};
+  const body={input:{prompt:text||"请查看我上传的内容并解答。"}, parameters:{}, debug:{}};
   if(sessionId) body.input.session_id=sessionId;
 
   // 图片：base64 直传 image_list（需应用为 VL 视觉模型）
