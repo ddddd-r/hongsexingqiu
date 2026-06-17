@@ -63,6 +63,9 @@
   .top .spacer{flex:1}
   .top a.back{color:var(--ink-3);font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:5px}
   .top a.back:hover{color:var(--red)}
+  .top .lang-btn{border:1px solid var(--line);background:#fff;color:var(--ink-2);font-size:13px;font-weight:600;padding:7px 12px;border-radius:9px;transition:.16s;display:inline-flex;align-items:center;gap:6px;margin-right:16px}
+  .top .lang-btn:hover{border-color:var(--red);color:var(--red)}
+  .top .lang-btn svg{flex:none}
 
   .msgs{flex:1;overflow-y:auto;padding:26px 0;display:flex;flex-direction:column;gap:16px;background:
     radial-gradient(1px 1px at 15% 12%,#e9ebf3,transparent),radial-gradient(1px 1px at 82% 30%,#e9ebf3,transparent),var(--bg)}
@@ -171,6 +174,7 @@
       <div class="info"><b id="top-name">AI 助手</b><small>在线</small></div>
       <span class="sub-badge" id="sub-badge">✦ 深度服务订阅</span>
       <div class="spacer"></div>
+      <button class="lang-btn" id="lang-toggle" onclick="toggleLang()"><span data-ic="globe" data-sz="15"></span><span class="lang-label">繁體</span></button>
       <a class="back" id="back-link" href="#"><span data-ic="back" data-sz="15"></span>返回专家主页</a>
     </div>
     <div class="msgs" id="msgs"></div>
@@ -204,6 +208,7 @@ const ICON={
   menu:'<path d="M3 12h18"/><path d="M3 6h18"/><path d="M3 18h18"/>',
   copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
   check:'<path d="M20 6 9 17l-5-5"/>',
+  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14.5 14.5 0 0 1 0 18 14.5 14.5 0 0 1 0-18z"/>',
 };
 function ic(n,s=18){ return '<svg viewBox="0 0 24 24" width="'+s+'" height="'+s+'" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(ICON[n]||'')+'</svg>'; }
 function hydrate(root=document){ root.querySelectorAll('[data-ic]').forEach(el=>{ if(!el.__h){el.innerHTML=ic(el.dataset.ic,+(el.dataset.sz||18));el.__h=1;} }); }
@@ -444,6 +449,23 @@ function clearErr(){ document.getElementById("chat-err").innerHTML=""; }
 function openSide(){ document.getElementById("side").classList.add("open"); document.getElementById("scrim").classList.add("show"); }
 function closeSide(){ document.getElementById("side").classList.remove("open"); document.getElementById("scrim").classList.remove("show"); }
 
+/* ===== 简 / 繁 切换 ===== */
+window.LANG = localStorage.getItem("lang")==="tw" ? "tw" : "cn";
+let s2t=null;
+const I18N_SKIP={SCRIPT:1,STYLE:1,NOSCRIPT:1,TEXTAREA:1};
+const I18N_ATTRS=["placeholder","title"];
+const inToggle=node=>{ let p=node&&(node.nodeType===1?node:node.parentNode); while(p){ if(p.classList&&(p.classList.contains("lang-label")||p.id==="lang-toggle"))return true; p=p.parentNode; } return false; };
+function convText(n){ if(!n.nodeValue.trim()||(n.parentNode&&I18N_SKIP[n.parentNode.nodeName])||inToggle(n))return; if(n.__orig===undefined)n.__orig=n.nodeValue; const t=s2t(n.__orig); if(n.nodeValue!==t)n.nodeValue=t; }
+function convAttrs(el){ I18N_ATTRS.forEach(a=>{ if(!el.hasAttribute(a))return; if(!el.__oa)el.__oa={}; if(el.__oa[a]===undefined)el.__oa[a]=el.getAttribute(a); if(el.__oa[a]&&el.__oa[a].trim())el.setAttribute(a,s2t(el.__oa[a])); }); }
+function convertTree(root){ if(!s2t)return; if(root.nodeType===3){convText(root);return;} const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null); let n; while(n=w.nextNode())convText(n); if(root.nodeType===1){ if(root.hasAttribute)convAttrs(root); root.querySelectorAll&&root.querySelectorAll("[placeholder],[title]").forEach(convAttrs); } }
+function restoreTree(root){ const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null); let n; while(n=w.nextNode()){ if(n.__orig!==undefined&&n.nodeValue!==n.__orig)n.nodeValue=n.__orig; } document.querySelectorAll("[placeholder],[title]").forEach(el=>{ if(el.__oa)I18N_ATTRS.forEach(a=>{ if(el.__oa[a]!==undefined)el.setAttribute(a,el.__oa[a]); }); }); }
+const i18nObserver=new MutationObserver(muts=>{ if(window.LANG!=="tw"||!s2t)return; i18nObserver.disconnect(); for(const m of muts){ if(m.type==="childList")m.addedNodes.forEach(node=>{ if(node.nodeType===1||node.nodeType===3)convertTree(node); }); else if(m.type==="characterData"&&!inToggle(m.target))convText(m.target); } startI18n(); });
+function startI18n(){ i18nObserver.observe(document.body,{subtree:true,childList:true,characterData:true}); }
+function setLangLabel(){ document.querySelectorAll(".lang-label").forEach(el=>el.textContent=window.LANG==="tw"?"简体":"繁體"); }
+function applyLang(lang){ window.LANG=lang; localStorage.setItem("lang",lang); document.documentElement.lang=lang==="tw"?"zh-Hant":"zh-Hans"; i18nObserver.disconnect(); if(lang==="tw")convertTree(document.body); else restoreTree(document.body); startI18n(); setLangLabel(); }
+function ensureConverter(cb){ if(s2t)return cb(); if(window.OpenCC){s2t=OpenCC.Converter({from:"cn",to:"tw"});return cb();} const sc=document.createElement("script"); sc.src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.js"; sc.onload=()=>{try{s2t=OpenCC.Converter({from:"cn",to:"tw"});cb();}catch(e){}}; sc.onerror=()=>{const b=document.getElementById("lang-toggle");if(b)b.disabled=true;}; document.head.appendChild(sc); }
+function toggleLang(){ const next=window.LANG==="tw"?"cn":"tw"; if(next==="tw")ensureConverter(()=>applyLang("tw")); else applyLang("cn"); }
+
 /* ===== 初始化 ===== */
 window.addEventListener("DOMContentLoaded",()=>{
   hydrate();
@@ -462,6 +484,8 @@ window.addEventListener("DOMContentLoaded",()=>{
   document.getElementById("send").onclick=()=>doSend();
   document.getElementById("file-doc").addEventListener("change",e=>addFiles(e.target.files,"file"));
   bindMic();
+  // 语言（与专家市场共用偏好）
+  if(window.LANG==="tw") ensureConverter(()=>applyLang("tw")); else setLangLabel();
 });
 </script>
 </body>

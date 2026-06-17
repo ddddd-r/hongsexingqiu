@@ -182,6 +182,30 @@
   .sub-card .sub-btn{position:relative;background:var(--red);color:#fff;border:none;border-radius:9px;padding:9px 20px;
     font-weight:700;font-size:13.5px;transition:.16s;box-shadow:0 6px 16px rgba(226,35,26,.26)}
   .sub-card .sub-btn:hover{background:var(--red-deep);transform:translateY(-1px)}
+  /* 订阅弹窗 */
+  .sub-mask{display:none;position:fixed;inset:0;background:rgba(16,20,35,.55);z-index:200;
+    align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
+  .sub-mask.open{display:flex}
+  .sub-modal{position:relative;width:460px;max-width:100%;background:#fff;border-radius:18px;padding:28px 28px 22px;
+    box-shadow:0 30px 70px rgba(0,0,0,.35);animation:subin .22s cubic-bezier(.2,.8,.3,1)}
+  @keyframes subin{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+  .sub-close{position:absolute;top:14px;right:16px;border:none;background:transparent;color:var(--ink-3);font-size:24px;line-height:1;width:30px;height:30px;border-radius:8px}
+  .sub-close:hover{background:#f2f3f8;color:var(--ink)}
+  .sub-pill{display:inline-flex;align-items:center;gap:5px;background:var(--red);color:#fff;font-size:11.5px;font-weight:800;padding:4px 11px;border-radius:999px;letter-spacing:.4px}
+  .sub-modal h3{font-size:21px;font-weight:800;margin:14px 0 4px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .sub-modal h3 span{color:var(--red);font-size:16px}
+  .sub-lead{color:var(--ink-2);font-size:13.5px;margin-bottom:14px}
+  .sub-benefits{list-style:none;display:flex;flex-direction:column;gap:11px;margin:0 0 20px}
+  .sub-benefits li{position:relative;padding-left:28px;font-size:13.5px;color:var(--ink-2);line-height:1.55}
+  .sub-benefits li::before{content:"✓";position:absolute;left:0;top:0;width:19px;height:19px;border-radius:50%;
+    background:var(--red-soft);color:var(--red);font-size:12px;font-weight:800;display:grid;place-items:center}
+  .sub-benefits li b{color:var(--ink)}
+  .sub-actions{display:flex;gap:10px}
+  .sub-cancel{flex:none;border:1px solid var(--line);background:#fff;color:var(--ink-2);border-radius:11px;padding:11px 18px;font-weight:600;font-size:14px;transition:.16s}
+  .sub-cancel:hover{border-color:var(--ink-3)}
+  .sub-confirm{flex:1;border:none;background:var(--red);color:#fff;border-radius:11px;padding:11px;font-weight:700;font-size:14px;transition:.16s;box-shadow:0 6px 16px rgba(226,35,26,.26)}
+  .sub-confirm:hover{background:var(--red-deep)}
+  .sub-note{margin-top:13px;font-size:11.5px;color:var(--ink-3);text-align:center}
 
   /* ===== Chatbox ===== */
   .chat{margin-top:26px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
@@ -389,6 +413,27 @@
 </footer>
 
 <input type="file" id="file-doc" hidden multiple />
+
+<!-- 订阅权益确认弹窗 -->
+<div id="sub-modal" class="sub-mask" onclick="if(event.target===this)closeSubModal()">
+  <div class="sub-modal">
+    <button class="sub-close" onclick="closeSubModal()">×</button>
+    <span class="sub-pill">✦ AI 深度服务 · 订阅制</span>
+    <h3>AI 深度服务订阅 <span>¥1,980 / 月起</span></h3>
+    <p class="sub-lead">订阅后，专属 AI 智能体为您提供持续的深度陪跑服务：</p>
+    <ul class="sub-benefits">
+      <li><b>7×24 优先响应</b>　随时提问，秒级回复，永不下线。</li>
+      <li><b>专属知识库持续更新</b>　专家最新文稿、案例、政策实时入库。</li>
+      <li><b>复杂问题直通真人专家</b>　AI 解决不了的，一键转交专家本人。</li>
+      <li><b>定期主动提醒与经营复盘</b>　重要节点主动触达，陪你把事做成。</li>
+    </ul>
+    <div class="sub-actions">
+      <button class="sub-cancel" onclick="closeSubModal()">再看看</button>
+      <button class="sub-confirm" onclick="confirmSub()">确认订阅，进入工作台 →</button>
+    </div>
+    <div class="sub-note">演示环境 · 点击「确认」将进入您的专属 AI 深度服务工作台</div>
+  </div>
+</div>
 
 <script>
 /* =========================================================
@@ -868,7 +913,11 @@ function showView(v){
 }
 function goExpert(id){location.hash="#/expert/"+id;}
 function focusChat(ev){ev.preventDefault();const a=document.getElementById("chat-anchor");if(a)a.scrollIntoView({behavior:"smooth"});setTimeout(()=>{const i=document.getElementById("input");if(i&&!i.disabled)i.focus();},400);}
-function subscribeAI(ev,id){if(ev)ev.preventDefault();location.href="workspace.html?expert="+encodeURIComponent(id||"");}
+let subExpertId=null;
+function subscribeAI(ev,id){if(ev)ev.preventDefault();subExpertId=id||"";document.getElementById("sub-modal").classList.add("open");}
+function closeSubModal(){document.getElementById("sub-modal").classList.remove("open");}
+function confirmSub(){location.href="workspace.html?expert="+encodeURIComponent(subExpertId||"");}
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSubModal();});
 
 function route(){
   const h=location.hash||"#/experts";
