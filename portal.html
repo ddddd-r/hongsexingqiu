@@ -19,10 +19,13 @@
     color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}
   button{font-family:inherit;cursor:pointer}
   input,textarea,select{font-family:inherit}
+  svg{display:block}
   .planet{width:30px;height:30px;border-radius:50%;position:relative;flex:none;
     background:radial-gradient(circle at 32% 30%,#ff6a5a 0%,var(--red) 42%,var(--red-deep) 100%)}
   .planet::after{content:"";position:absolute;left:-5px;top:13px;width:40px;height:9px;border-radius:50%;
     border:2px solid var(--gold);transform:rotate(-18deg);opacity:.85}
+  .ic-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px}
+  .ic-btn svg{flex:none}
 
   /* ===== Login ===== */
   #login{min-height:100vh;display:grid;place-items:center;position:relative;overflow:hidden;
@@ -56,6 +59,9 @@
   .quick-btn b{font-size:13px;display:block}
   .quick-btn span{font-size:11px;color:var(--ink-3)}
   .login-foot{margin-top:18px;font-size:11.5px;color:var(--ink-3);text-align:center}
+  .lang-mini{position:absolute;top:22px;right:24px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);
+    color:#dfe5f5;border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600}
+  .lang-mini:hover{border-color:var(--gold);color:#fff}
 
   /* ===== Portal layout ===== */
   #portal{display:none;min-height:100vh}
@@ -65,7 +71,7 @@
   .side .brand small{display:block;color:#8a93b0;font-weight:600;font-size:10.5px}
   .nav-item{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:10px;color:#c2c9de;font-size:14px;
     font-weight:500;transition:.15s;margin-bottom:3px;border:none;background:transparent;width:100%;text-align:left}
-  .nav-item .ic{width:20px;text-align:center;font-size:16px}
+  .nav-item .ic{width:20px;height:20px;display:grid;place-items:center;flex:none}
   .nav-item:hover{background:rgba(255,255,255,.07);color:#fff}
   .nav-item.active{background:var(--red);color:#fff;box-shadow:0 6px 16px rgba(226,35,26,.3)}
   .side .spacer{flex:1}
@@ -81,18 +87,22 @@
     position:sticky;top:0;z-index:20}
   .topbar h2{font-size:19px;font-weight:800}
   .topbar .crumb{font-size:12.5px;color:var(--ink-3);margin-top:1px}
+  .topbar-right{display:flex;align-items:center;gap:12px}
+  .lang-btn{border:1px solid var(--line);background:#fff;color:var(--ink-2);font-size:13px;font-weight:600;padding:8px 13px;border-radius:9px;transition:.16s}
+  .lang-btn:hover{border-color:var(--red);color:var(--red)}
+  .lang-btn svg{flex:none}
   .content{padding:28px 32px 60px;max-width:1080px}
 
   .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
-  .stat{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px;box-shadow:var(--shadow-sm)}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:18px 18px;box-shadow:var(--shadow-sm);position:relative}
   .stat b{font-size:28px;font-weight:800;display:block;line-height:1.2}
   .stat span{font-size:13px;color:var(--ink-3)}
-  .stat .ic{float:right;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:18px;background:var(--red-soft);color:var(--red)}
+  .stat .ic{position:absolute;top:18px;right:18px;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--red-soft);color:var(--red)}
 
   .panel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);margin-bottom:22px}
   .panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-  .panel-head h3{font-size:17px;font-weight:800;display:flex;align-items:center;gap:9px}
-  .panel-head h3 .ic{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:var(--red-soft);color:var(--red);font-size:15px}
+  .panel-head h3{font-size:17px;font-weight:800;display:flex;align-items:center;gap:10px}
+  .panel-head h3 .ic{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:var(--red-soft);color:var(--red);flex:none}
   .panel .sub{color:var(--ink-3);font-size:13px;margin-bottom:18px}
 
   label.fl{display:block;font-size:12.5px;color:var(--ink-2);font-weight:600;margin:14px 0 6px}
@@ -127,7 +137,7 @@
   .badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px}
   .badge.on{background:var(--green-soft);color:var(--green)}
   .badge.offb{background:#f1f2f6;color:var(--ink-3)}
-  .icon-btn{border:1px solid var(--line);background:#fff;border-radius:8px;width:30px;height:30px;display:grid;place-items:center;color:var(--ink-3);transition:.15s;font-size:14px}
+  .icon-btn{border:1px solid var(--line);background:#fff;border-radius:8px;width:30px;height:30px;display:grid;place-items:center;color:var(--ink-3);transition:.15s}
   .icon-btn:hover{border-color:var(--red);color:var(--red)}
   /* toggle switch */
   .switch{position:relative;width:42px;height:24px;flex:none}
@@ -142,31 +152,32 @@
   .svc-edit .grid-e{display:grid;grid-template-columns:1fr 150px;gap:12px}
 
   /* knowledge base */
-  .drop{border:2px dashed #c9cee0;border-radius:14px;padding:30px;text-align:center;transition:.18s;cursor:pointer;background:#fafbff}
+  .drop{border:2px dashed #c9cee0;border-radius:14px;padding:28px;text-align:center;transition:.18s;cursor:pointer;background:#fafbff}
   .drop:hover,.drop.over{border-color:var(--red);background:var(--red-soft)}
-  .drop .big{font-size:34px}
-  .drop b{display:block;margin-top:8px;font-size:15px}
+  .drop .big{display:flex;justify-content:center;color:var(--ink-3)}
+  .drop:hover .big,.drop.over .big{color:var(--red)}
+  .drop b{display:block;margin-top:10px;font-size:15px}
   .drop span{font-size:12.5px;color:var(--ink-3)}
   .kb-item{display:flex;align-items:center;gap:13px;padding:13px 14px;border:1px solid var(--line);border-radius:11px;margin-top:10px}
-  .kb-ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-size:17px;background:#eef1fb;color:var(--ink);flex:none}
+  .kb-ic{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:#eef1fb;color:var(--ink);flex:none}
   .kb-main{flex:1;min-width:0}
   .kb-main b{font-size:14px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .kb-main span{font-size:12px;color:var(--ink-3)}
-  .kb-status{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap}
+  .kb-status{font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
   .kb-status.ok{background:var(--green-soft);color:var(--green)}
   .kb-status.proc{background:#fff7e6;color:#b97e00}
   .kb-status.fail{background:var(--red-soft);color:var(--red)}
-  .kb-note{margin-top:16px;background:#eef1fb;border-radius:11px;padding:13px 15px;font-size:12.5px;color:var(--ink-2);display:flex;gap:9px}
-  .spin{display:inline-block;width:11px;height:11px;border:2px solid #e6c27a;border-top-color:transparent;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-1px;margin-right:5px}
+  .kb-note{margin-top:16px;background:#eef1fb;border-radius:11px;padding:13px 15px;font-size:12.5px;color:var(--ink-2);display:flex;gap:10px;align-items:flex-start}
+  .kb-note .ic{color:var(--gold);flex:none;margin-top:1px}
+  .spin{display:inline-block;width:11px;height:11px;border:2px solid #e6c27a;border-top-color:transparent;border-radius:50%;animation:sp .7s linear infinite}
   @keyframes sp{to{transform:rotate(360deg)}}
 
   /* toast */
   #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;
     background:var(--ink);color:#fff;padding:12px 20px;border-radius:11px;font-size:13.5px;font-weight:600;transition:.25s;z-index:100;box-shadow:0 12px 30px rgba(0,0,0,.25);display:flex;align-items:center;gap:9px}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  #toast .tk{color:#4ade80}
+  #toast .tk{display:flex}
 
-  .hidden{display:none!important}
   .view{display:none}
   .view.active{display:block}
   .muted-tip{font-size:12px;color:var(--ink-3);margin-top:6px}
@@ -186,6 +197,7 @@
 <!-- ============ LOGIN ============ -->
 <section id="login">
   <div class="stars"></div>
+  <button class="lang-mini ic-btn" id="lang-toggle-login" onclick="toggleLang()"><span data-ic="globe" data-sz="14"></span><span class="lang-label">繁體</span></button>
   <div class="login-card">
     <div class="login-brand"><span class="planet"></span><div>红色星球<small>专家运营门户 · OPERATION PORTAL</small></div></div>
     <h1>专家登录</h1>
@@ -206,10 +218,10 @@
   <div class="layout">
     <aside class="side">
       <div class="brand"><span class="planet"></span><div>红色星球<small>专家运营门户</small></div></div>
-      <button class="nav-item active" data-view="overview" onclick="nav('overview')"><span class="ic">🛰️</span>概览</button>
-      <button class="nav-item" data-view="profile" onclick="nav('profile')"><span class="ic">👤</span>个人主页</button>
-      <button class="nav-item" data-view="services" onclick="nav('services')"><span class="ic">🧾</span>服务项目</button>
-      <button class="nav-item" data-view="kb" onclick="nav('kb')"><span class="ic">📚</span>AI 知识库</button>
+      <button class="nav-item active" data-view="overview" onclick="nav('overview')"><span class="ic" data-ic="grid"></span>概览</button>
+      <button class="nav-item" data-view="profile" onclick="nav('profile')"><span class="ic" data-ic="user"></span>个人主页</button>
+      <button class="nav-item" data-view="services" onclick="nav('services')"><span class="ic" data-ic="receipt"></span>服务项目</button>
+      <button class="nav-item" data-view="kb" onclick="nav('kb')"><span class="ic" data-ic="book"></span>AI 知识库</button>
       <div class="spacer"></div>
       <div class="me"><div class="av" id="me-av"></div><div><b id="me-name"></b><span id="me-role"></span></div></div>
       <button class="logout" onclick="doLogout()">退出登录</button>
@@ -218,30 +230,33 @@
     <div class="main">
       <div class="topbar">
         <div><h2 id="pg-title">概览</h2><div class="crumb" id="pg-crumb">专家运营门户 · 控制台</div></div>
-        <button class="btn-red" id="topbar-action" onclick="topbarAction()">查看我的主页 ↗</button>
+        <div class="topbar-right">
+          <button class="lang-btn ic-btn" id="lang-toggle" onclick="toggleLang()"><span data-ic="globe" data-sz="15"></span><span class="lang-label">繁體</span></button>
+          <button class="btn-red" id="topbar-action" onclick="topbarAction()">查看我的主页 ↗</button>
+        </div>
       </div>
       <div class="content">
 
         <!-- Overview -->
         <div class="view active" id="view-overview">
           <div class="stat-row">
-            <div class="stat"><div class="ic">👁️</div><b id="ov-visits">—</b><span>本月主页访问</span></div>
-            <div class="stat"><div class="ic">💬</div><b id="ov-chats">—</b><span>本月 AI 咨询</span></div>
-            <div class="stat"><div class="ic">🧾</div><b id="ov-svc">—</b><span>在架服务项目</span></div>
-            <div class="stat"><div class="ic">📚</div><b id="ov-kb">—</b><span>知识库文件</span></div>
+            <div class="stat"><div class="ic" data-ic="eye"></div><b id="ov-visits">—</b><span>本月主页访问</span></div>
+            <div class="stat"><div class="ic" data-ic="chat"></div><b id="ov-chats">—</b><span>本月 AI 咨询</span></div>
+            <div class="stat"><div class="ic" data-ic="receipt"></div><b id="ov-svc">—</b><span>在架服务项目</span></div>
+            <div class="stat"><div class="ic" data-ic="book"></div><b id="ov-kb">—</b><span>知识库文件</span></div>
           </div>
           <div class="panel">
-            <div class="panel-head"><h3><span class="ic">⚡</span>快捷操作</h3></div>
+            <div class="panel-head"><h3><span class="ic" data-ic="bolt" data-sz="16"></span>快捷操作</h3></div>
             <div class="sub">日常运营，从这里开始。</div>
             <div class="grid4">
-              <button class="btn-line" onclick="nav('profile')">✏️ 更新主页信息</button>
-              <button class="btn-line" onclick="nav('services')">🧾 管理服务与报价</button>
-              <button class="btn-line" onclick="nav('kb')">📤 上传知识库文件</button>
-              <button class="btn-line" onclick="resetDemo()">↺ 重置演示数据</button>
+              <button class="btn-line ic-btn" onclick="nav('profile')"><span data-ic="pencil" data-sz="15"></span>更新主页信息</button>
+              <button class="btn-line ic-btn" onclick="nav('services')"><span data-ic="receipt" data-sz="15"></span>管理服务与报价</button>
+              <button class="btn-line ic-btn" onclick="nav('kb')"><span data-ic="upload" data-sz="15"></span>上传知识库文件</button>
+              <button class="btn-line ic-btn" onclick="resetDemo()"><span data-ic="refresh" data-sz="15"></span>重置演示数据</button>
             </div>
           </div>
           <div class="panel">
-            <div class="panel-head"><h3><span class="ic">🤖</span>我的 AI 智能体</h3></div>
+            <div class="panel-head"><h3><span class="ic" data-ic="bot" data-sz="16"></span>我的 AI 智能体</h3></div>
             <div class="sub">客户在您的主页与该智能体实时对话；它的回答基于您维护的知识库。</div>
             <div style="display:flex;align-items:center;gap:14px">
               <div class="av" id="bot-av" style="width:50px;height:50px;border-radius:13px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:20px;flex:none"></div>
@@ -253,7 +268,7 @@
         <!-- Profile -->
         <div class="view" id="view-profile">
           <div class="panel">
-            <div class="panel-head"><h3><span class="ic">👤</span>主页基础信息</h3></div>
+            <div class="panel-head"><h3><span class="ic" data-ic="user" data-sz="16"></span>主页基础信息</h3></div>
             <div class="sub">这些内容会展示在您的公开专家主页上。</div>
             <div class="grid2">
               <div><label class="fl">姓名</label><input class="inp" id="pf-name" disabled /></div>
@@ -265,7 +280,7 @@
             <textarea class="inp" id="pf-bio"></textarea>
           </div>
           <div class="panel">
-            <div class="panel-head"><h3><span class="ic">📊</span>展示数据</h3></div>
+            <div class="panel-head"><h3><span class="ic" data-ic="chart" data-sz="16"></span>展示数据</h3></div>
             <div class="sub">主页顶部的数据指标（标签可自定义）。</div>
             <div class="grid4">
               <div><label class="fl">服务评分</label><input class="inp" id="pf-rating" /></div>
@@ -280,12 +295,12 @@
         <!-- Services -->
         <div class="view" id="view-services">
           <div class="panel">
-            <div class="panel-head"><h3><span class="ic">✅</span>基础服务内容</h3><button class="btn-line btn-sm" onclick="addSvc('base')">+ 新增服务</button></div>
+            <div class="panel-head"><h3><span class="ic" data-ic="check" data-sz="16"></span>基础服务内容</h3><button class="btn-line btn-sm ic-btn" onclick="addSvc('base')"><span data-ic="plus" data-sz="14"></span>新增服务</button></div>
             <div class="sub">入驻即享的标准化服务。可上架 / 下架。</div>
             <div id="svc-base"></div>
           </div>
           <div class="panel">
-            <div class="panel-head"><h3><span class="ic">⭐</span>增值服务项目</h3><button class="btn-line btn-sm" onclick="addSvc('vas')">+ 新增项目</button></div>
+            <div class="panel-head"><h3><span class="ic" data-ic="star" data-sz="16"></span>增值服务项目</h3><button class="btn-line btn-sm ic-btn" onclick="addSvc('vas')"><span data-ic="plus" data-sz="14"></span>新增项目</button></div>
             <div class="sub">按需选购的专业深度服务，可设置报价。</div>
             <div id="svc-vas"></div>
           </div>
@@ -294,16 +309,16 @@
         <!-- Knowledge base -->
         <div class="view" id="view-kb">
           <div class="panel">
-            <div class="panel-head"><h3><span class="ic">📚</span>AI 知识库</h3><button class="btn-red btn-sm" onclick="syncKb()">同步到 AI 智能体</button></div>
+            <div class="panel-head"><h3><span class="ic" data-ic="book" data-sz="16"></span>AI 知识库</h3><button class="btn-red btn-sm ic-btn" onclick="syncKb()"><span data-ic="sync" data-sz="14"></span>同步到 AI 智能体</button></div>
             <div class="sub">上传您的文稿、手册、案例与话术，AI 智能体将基于这些最新内容回答客户。支持 doc / docx / pdf / ppt / xls / md / txt。</div>
             <div class="drop" id="drop" onclick="document.getElementById('kb-file').click()">
-              <div class="big">📤</div>
+              <div class="big" data-ic="upload" data-sz="38"></div>
               <b>点击或拖拽文件到此处上传</b>
               <span>单文件 ≤ 20MB · 上传后将自动解析并写入知识库</span>
             </div>
             <input type="file" id="kb-file" multiple hidden />
             <div id="kb-list"></div>
-            <div class="kb-note"><span>💡</span><div>知识库更新后，您主页上的 AI 智能体会在「同步」后立即引用最新文稿——无需改动任何代码。</div></div>
+            <div class="kb-note"><span class="ic" data-ic="bulb" data-sz="16"></span><div>知识库更新后，您主页上的 AI 智能体会在「同步」后立即引用最新文稿——无需改动任何代码。</div></div>
           </div>
         </div>
 
@@ -312,9 +327,35 @@
   </div>
 </section>
 
-<div id="toast"><span class="tk">✓</span><span id="toast-msg"></span></div>
+<div id="toast"><span class="tk" data-ic="check" data-sz="16"></span><span id="toast-msg"></span></div>
 
 <script>
+/* ============ 线性图标 ============ */
+const ICON = {
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/>',
+  user:'<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  receipt:'<path d="M5 3h14v18l-2.7-1.6L14 21l-2-1.5L10 21l-2.3-1.6L5 21z"/><path d="M9 8h6"/><path d="M9 12h6"/>',
+  book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  eye:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+  chat:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
+  bot:'<rect x="4" y="8" width="16" height="11" rx="2.5"/><path d="M12 8V4"/><circle cx="12" cy="3" r="1"/><path d="M9 13h.01"/><path d="M15 13h.01"/>',
+  chart:'<path d="M3 3v18h18"/><path d="M8 17v-5"/><path d="M13 17V8"/><path d="M18 17v-8"/>',
+  check:'<circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.4 2.4 4.6-5"/>',
+  star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17.8 6.6 20l1-6.1L3.2 9.8l6.1-.9z"/>',
+  pencil:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  trash:'<path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>',
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 9l5-5 5 5"/><path d="M12 4v12"/>',
+  file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+  bulb:'<path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1h6c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/>',
+  refresh:'<path d="M21 12a9 9 0 1 1-2.6-6.3L21 8"/><path d="M21 3v5h-5"/>',
+  plus:'<path d="M12 5v14"/><path d="M5 12h14"/>',
+  sync:'<path d="M21 3v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 9"/><path d="M3 21v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 15"/>',
+  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14.5 14.5 0 0 1 0 18 14.5 14.5 0 0 1 0-18z"/>',
+};
+function ic(name, size=18){ return '<svg viewBox="0 0 24 24" width="'+size+'" height="'+size+'" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(ICON[name]||'')+'</svg>'; }
+function hydrateIcons(root=document){ root.querySelectorAll('[data-ic]').forEach(el=>{ el.innerHTML=ic(el.dataset.ic, +(el.dataset.sz||18)); }); }
+
 /* ============ 种子数据（基于现有两位专家） ============ */
 const SEED = {
   zhenghao: {
@@ -371,8 +412,7 @@ const SEED = {
 const ACCOUNTS = { "zhenghao@hsxq.top":"zhenghao", "luoqiongzhi@hsxq.top":"luoqiongzhi" };
 
 /* ============ 状态与持久化 ============ */
-let CUR=null;          // 当前专家 id
-let D=null;            // 当前专家数据（可编辑副本）
+let CUR=null, D=null;
 const LSKEY = id => "portal_"+id;
 function loadData(id){ try{ const s=localStorage.getItem(LSKEY(id)); if(s) return JSON.parse(s); }catch(e){} return JSON.parse(JSON.stringify(SEED[id])); }
 function persist(){ if(CUR) localStorage.setItem(LSKEY(CUR), JSON.stringify(D)); }
@@ -396,15 +436,15 @@ function loginAs(id){ CUR=id; D=loadData(id); enterPortal(); }
 function enterPortal(){
   document.getElementById("login").style.display="none";
   document.getElementById("portal").style.display="block";
-  // 侧边栏身份
   document.getElementById("me-av").style.background=SEED[CUR].avBg;
   document.getElementById("me-av").textContent=D.initial;
   document.getElementById("me-name").textContent=D.name;
   document.getElementById("me-role").textContent="专家账号";
   nav("overview");
   renderAll();
+  i18nSync();
 }
-function doLogout(){ CUR=null; D=null; document.getElementById("portal").style.display="none"; document.getElementById("login").style.display="grid"; }
+function doLogout(){ CUR=null; D=null; document.getElementById("portal").style.display="none"; document.getElementById("login").style.display="grid"; i18nSync(); }
 
 /* ============ 导航 ============ */
 const TITLES={overview:["概览","专家运营门户 · 控制台","查看我的主页 ↗"],profile:["个人主页","管理 · 主页信息","预览主页 ↗"],services:["服务项目","管理 · 服务与报价","预览主页 ↗"],kb:["AI 知识库","管理 · 知识库文件","查看智能体 ↗"]};
@@ -413,54 +453,46 @@ function nav(v){
   document.querySelectorAll(".view").forEach(el=>el.classList.toggle("active",el.id==="view-"+v));
   const t=TITLES[v]; document.getElementById("pg-title").textContent=t[0]; document.getElementById("pg-crumb").textContent=t[1];
   document.getElementById("topbar-action").textContent=t[2];
+  i18nSync();
 }
 function topbarAction(){ toast("演示：将打开您的公开主页 / AI 智能体"); }
 
 /* ============ 渲染 ============ */
-function renderAll(){ renderOverview(); renderProfile(); renderServices(); renderKb(); }
+function renderAll(){ renderOverview(); renderProfile(); renderServices(); renderKb(); i18nSync(); }
 
 function renderOverview(){
   document.getElementById("ov-visits").textContent=D.visits;
   document.getElementById("ov-chats").textContent=D.chats;
-  const onCount=[...D.base,...D.vas].filter(s=>s.on).length;
-  document.getElementById("ov-svc").textContent=onCount;
+  document.getElementById("ov-svc").textContent=[...D.base,...D.vas].filter(s=>s.on).length;
   document.getElementById("ov-kb").textContent=D.kb.length;
   const bav=document.getElementById("bot-av"); bav.style.background=SEED[CUR].avBg; bav.textContent=D.initial;
   document.getElementById("bot-name").textContent=D.botName;
 }
 
 function renderProfile(){
-  document.getElementById("pf-name").value=D.name;
-  document.getElementById("pf-title").value=D.title;
-  document.getElementById("pf-bio").value=D.bio;
-  document.getElementById("pf-rating").value=D.rating;
-  document.getElementById("pf-served").value=D.served;
-  document.getElementById("pf-years").value=D.years;
-  document.getElementById("pf-resp").value=D.resp;
+  setVal("pf-name",D.name); setVal("pf-title",D.title); setVal("pf-bio",D.bio);
+  setVal("pf-rating",D.rating); setVal("pf-served",D.served); setVal("pf-years",D.years); setVal("pf-resp",D.resp);
   document.getElementById("lb-served").textContent=D.servedLabel||"累计服务";
   document.getElementById("lb-years").textContent=(D.yearsLabel||"从业经验")+"（年）";
   renderTags();
 }
+function setVal(id,v){ const el=document.getElementById(id); el.value=v; if(el.__ov!==undefined) delete el.__ov; }
 function renderTags(){
   const c=document.getElementById("pf-tags");
-  c.innerHTML=D.tags.map((t,i)=>`<span class="chip">${t}<span class="x" onclick="rmTag(${i})">×</span></span>`).join("")
+  c.innerHTML=D.tags.map((t,i)=>`<span class="chip">${esc(t)}<span class="x" onclick="rmTag(${i})">×</span></span>`).join("")
     +`<button class="chip-add" onclick="addTag()">+ 添加标签</button>`;
+  i18nSync();
 }
 function rmTag(i){ D.tags.splice(i,1); persist(); renderTags(); }
 function addTag(){ const v=prompt("添加专长标签："); if(v&&v.trim()){ D.tags.push(v.trim()); persist(); renderTags(); } }
 function saveProfile(){
-  D.title=document.getElementById("pf-title").value.trim();
-  D.bio=document.getElementById("pf-bio").value.trim();
-  D.rating=document.getElementById("pf-rating").value.trim();
-  D.served=document.getElementById("pf-served").value.trim();
-  D.years=document.getElementById("pf-years").value.trim();
-  D.resp=document.getElementById("pf-resp").value.trim();
-  persist(); renderOverview();
-  toast("已保存，公开主页已更新");
+  D.title=gv("pf-title"); D.bio=gv("pf-bio"); D.rating=gv("pf-rating"); D.served=gv("pf-served"); D.years=gv("pf-years"); D.resp=gv("pf-resp");
+  persist(); renderOverview(); toast("已保存，公开主页已更新");
 }
+function gv(id){ return document.getElementById(id).value.trim(); }
 
 function svcCard(group,s,i){
-  const priceHtml = group==="vas" ? `<div class="svc-price">${s.price||"—"}</div>` : "";
+  const priceHtml = group==="vas" ? `<div class="svc-price">${esc(s.price||"—")}</div>` : "";
   const priceEdit = group==="vas" ? `<input class="inp" data-f="price" value="${escAttr(s.price||"")}" placeholder="报价，如 ¥9,800 起" />` : "";
   return `<div class="svc-item ${s.on?"":"off"}" data-g="${group}" data-i="${i}">
     <div class="svc-row">
@@ -471,8 +503,8 @@ function svcCard(group,s,i){
       ${priceHtml}
       <div class="svc-actions">
         <label class="switch" title="上架 / 下架"><input type="checkbox" ${s.on?"checked":""} onchange="toggleSvc('${group}',${i},this.checked)"><span class="slider"></span></label>
-        <button class="icon-btn" title="编辑" onclick="editSvc('${group}',${i})">✏️</button>
-        <button class="icon-btn" title="删除" onclick="delSvc('${group}',${i})">🗑️</button>
+        <button class="icon-btn" title="编辑" onclick="editSvc('${group}',${i})">${ic("pencil",14)}</button>
+        <button class="icon-btn" title="删除" onclick="delSvc('${group}',${i})">${ic("trash",14)}</button>
       </div>
     </div>
     <div class="svc-edit">
@@ -491,6 +523,7 @@ function svcCard(group,s,i){
 function renderServices(){
   document.getElementById("svc-base").innerHTML=D.base.map((s,i)=>svcCard("base",s,i)).join("")||emptyHint();
   document.getElementById("svc-vas").innerHTML=D.vas.map((s,i)=>svcCard("vas",s,i)).join("")||emptyHint();
+  i18nSync();
 }
 function emptyHint(){ return `<div class="muted-tip">暂无项目，点击右上角「新增」添加。</div>`; }
 function toggleSvc(g,i,v){ D[g][i].on=v; persist(); renderServices(); renderOverview(); toast(v?"已上架":"已下架"); }
@@ -503,41 +536,33 @@ function saveSvc(g,i){
 function delSvc(g,i){ if(confirm("确定删除该项目？")){ D[g].splice(i,1); persist(); renderServices(); renderOverview(); toast("已删除"); } }
 function addSvc(g){
   D[g].push(g==="vas"?{t:"新增增值项目",d:"请填写服务说明",price:"按项目报价",on:false}:{t:"新增服务",d:"请填写服务说明",on:false});
-  persist(); renderServices();
-  const i=D[g].length-1; setTimeout(()=>editSvc(g,i),30);
+  persist(); renderServices(); const i=D[g].length-1; setTimeout(()=>editSvc(g,i),30);
 }
 
 /* ============ 知识库 ============ */
-const FILE_ICON={pdf:"📕",doc:"📘",docx:"📘",ppt:"📙",pptx:"📙",xls:"📗",xlsx:"📗",md:"📝",txt:"📄"};
-function fileIcon(name){ const e=(name.split(".").pop()||"").toLowerCase(); return FILE_ICON[e]||"📄"; }
 function statusHtml(s){
-  if(s==="ok") return `<span class="kb-status ok">✓ 已解析入库</span>`;
+  if(s==="ok") return `<span class="kb-status ok">${ic("check",12)}已解析入库</span>`;
   if(s==="proc") return `<span class="kb-status proc"><span class="spin"></span>解析中</span>`;
   return `<span class="kb-status fail">解析失败</span>`;
 }
 function renderKb(){
-  const list=document.getElementById("kb-list");
-  list.innerHTML=D.kb.map((f,i)=>`
+  document.getElementById("kb-list").innerHTML=D.kb.map((f,i)=>`
     <div class="kb-item">
-      <div class="kb-ic">${fileIcon(f.name)}</div>
+      <div class="kb-ic">${ic("file",18)}</div>
       <div class="kb-main"><b>${esc(f.name)}</b><span>${f.size} · 上传于 ${f.time}</span></div>
       ${statusHtml(f.status)}
-      <button class="icon-btn" title="移除" onclick="delKb(${i})">🗑️</button>
+      <button class="icon-btn" title="移除" onclick="delKb(${i})">${ic("trash",14)}</button>
     </div>`).join("");
+  i18nSync();
 }
 function delKb(i){ if(confirm("从知识库移除该文件？")){ D.kb.splice(i,1); persist(); renderKb(); renderOverview(); toast("已从知识库移除"); } }
 function fmtSize(b){ return b<1024?b+" B":b<1048576?(b/1024).toFixed(0)+" KB":(b/1048576).toFixed(1)+" MB"; }
 function addKbFiles(files){
-  [...files].forEach(f=>{
-    const item={name:f.name,size:fmtSize(f.size),status:"proc",time:todayStr()};
-    D.kb.unshift(item);
-  });
-  persist(); renderKb(); renderOverview();
-  toast("上传成功，正在解析…");
-  // 模拟解析完成
+  [...files].forEach(f=>{ D.kb.unshift({name:f.name,size:fmtSize(f.size),status:"proc",time:todayStr()}); });
+  persist(); renderKb(); renderOverview(); toast("上传成功，正在解析…");
   setTimeout(()=>{ D.kb.forEach(f=>{ if(f.status==="proc") f.status="ok"; }); persist(); renderKb(); toast("文件已解析并写入知识库"); },1700);
 }
-function syncKb(){ document.getElementById("bot-state").textContent="● 在线 · 知识库已同步（刚刚）"; toast("已同步到 AI 智能体，回答将引用最新文稿"); }
+function syncKb(){ document.getElementById("bot-state").textContent="● 在线 · 知识库已同步（刚刚）"; i18nSync(); toast("已同步到 AI 智能体，回答将引用最新文稿"); }
 function todayStr(){ const d=new Date(); const p=n=>String(n).padStart(2,"0"); return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
 
 /* ============ 工具 ============ */
@@ -545,12 +570,66 @@ function esc(s){ return (s||"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">"
 function escAttr(s){ return esc(s).replace(/"/g,"&quot;"); }
 let toastTimer=null;
 function toast(msg,warn){ const t=document.getElementById("toast"); document.getElementById("toast-msg").textContent=msg;
-  t.querySelector(".tk").textContent=warn?"!":"✓"; t.querySelector(".tk").style.color=warn?"#fbbf24":"#4ade80";
-  t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2600); }
+  t.querySelector(".tk").innerHTML=ic(warn?"bulb":"check",16); t.querySelector(".tk").style.color=warn?"#fbbf24":"#4ade80";
+  i18nSync(); t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2600); }
 function resetDemo(){ if(confirm("重置为初始演示数据？将清除本次所有修改。")){ localStorage.removeItem(LSKEY(CUR)); D=loadData(CUR); renderAll(); toast("已重置演示数据"); } }
 
-/* ============ 事件绑定 ============ */
+/* ============ 简体 / 繁体 切换 ============ */
+window.PLANG = localStorage.getItem("portal_lang")==="tw" ? "tw" : "cn";
+let s2t=null;
+const SKIP={SCRIPT:1,STYLE:1,NOSCRIPT:1};
+const ATTRS=["placeholder","title"];
+const inToggle=node=>{ let p=node&&(node.nodeType===1?node:node.parentNode); while(p){ if(p.classList&&(p.classList.contains("lang-label")||p.id==="lang-toggle"||p.id==="lang-toggle-login"))return true; p=p.parentNode; } return false; };
+function convText(n){
+  if(!n.nodeValue.trim()||(n.parentNode&&SKIP[n.parentNode.nodeName])||inToggle(n)) return;
+  if(n.__orig===undefined) n.__orig=n.nodeValue;
+  const t=s2t(n.__orig); if(n.nodeValue!==t) n.nodeValue=t;
+}
+function convVal(el){
+  const cur=el.value;
+  if(el.__ov===undefined || (cur!==el.__ov && cur!==s2t(el.__ov))) el.__ov=cur;
+  const t=s2t(el.__ov); if(cur!==t) el.value=t;
+}
+function convAttrs(el){
+  ATTRS.forEach(a=>{ if(!el.hasAttribute(a))return; if(!el.__oa)el.__oa={};
+    if(el.__oa[a]===undefined) el.__oa[a]=el.getAttribute(a);
+    if(el.__oa[a]&&el.__oa[a].trim()) el.setAttribute(a,s2t(el.__oa[a])); });
+}
+function convertTree(root){
+  if(!s2t) return;
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null);
+  let n; while(n=w.nextNode()) convText(n);
+  if(root.nodeType===1){ if(root.hasAttribute) convAttrs(root); root.querySelectorAll("[placeholder],[title]").forEach(convAttrs); }
+  document.querySelectorAll("input.inp, textarea.inp, #lg-user").forEach(convVal);
+}
+function restoreTree(root){
+  const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null);
+  let n; while(n=w.nextNode()){ if(n.__orig!==undefined && n.nodeValue!==n.__orig) n.nodeValue=n.__orig; }
+  document.querySelectorAll("[placeholder],[title]").forEach(el=>{ if(el.__oa) ATTRS.forEach(a=>{ if(el.__oa[a]!==undefined) el.setAttribute(a,el.__oa[a]); }); });
+  document.querySelectorAll("input.inp, textarea.inp, #lg-user").forEach(el=>{ if(el.__ov!==undefined && el.value!==el.__ov) el.value=el.__ov; });
+}
+function setLangLabel(){ document.querySelectorAll(".lang-label").forEach(el=>el.textContent = window.PLANG==="tw" ? "简体" : "繁體"); }
+function i18nSync(){ if(window.PLANG==="tw" && s2t) convertTree(document.body); }
+function applyLang(lang){
+  window.PLANG=lang; localStorage.setItem("portal_lang",lang);
+  document.documentElement.lang = lang==="tw" ? "zh-Hant" : "zh-Hans";
+  if(lang==="tw") convertTree(document.body); else restoreTree(document.body);
+  setLangLabel();
+}
+function ensureConverter(cb){
+  if(s2t) return cb();
+  if(window.OpenCC){ s2t=OpenCC.Converter({from:"cn",to:"tw"}); return cb(); }
+  const sc=document.createElement("script");
+  sc.src="https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/umd/full.js";
+  sc.onload=()=>{ try{ s2t=OpenCC.Converter({from:"cn",to:"tw"}); cb(); }catch(e){ console.warn("OpenCC 初始化失败",e); } };
+  sc.onerror=()=>{ document.querySelectorAll("#lang-toggle,#lang-toggle-login").forEach(b=>{b.disabled=true;b.title="繁体转换库加载失败，请检查网络";}); };
+  document.head.appendChild(sc);
+}
+function toggleLang(){ const next = window.PLANG==="tw" ? "cn" : "tw"; if(next==="tw") ensureConverter(()=>applyLang("tw")); else applyLang("cn"); }
+
+/* ============ 启动 ============ */
 window.addEventListener("DOMContentLoaded",()=>{
+  hydrateIcons();
   renderQuick();
   const fi=document.getElementById("kb-file");
   fi.addEventListener("change",e=>{ addKbFiles(e.target.files); fi.value=""; });
@@ -559,6 +638,8 @@ window.addEventListener("DOMContentLoaded",()=>{
   ["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over");}));
   drop.addEventListener("drop",e=>{ if(e.dataTransfer.files.length) addKbFiles(e.dataTransfer.files); });
   document.getElementById("lg-pass").addEventListener("keydown",e=>{ if(e.key==="Enter") doLogin(); });
+  // 记忆的语言
+  if(window.PLANG==="tw") ensureConverter(()=>applyLang("tw")); else setLangLabel();
 });
 </script>
 </body>
