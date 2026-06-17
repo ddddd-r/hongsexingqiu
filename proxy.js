@@ -23,7 +23,7 @@ const { Readable } = require("stream");
 const PORT    = process.env.PORT || 8787;
 const PAGE    = path.join(__dirname, "experts.html");
 // 静态页面白名单：路径 → 文件名
-const PAGES   = { "/": "experts.html", "/experts.html": "experts.html", "/portal": "portal.html", "/portal.html": "portal.html" };
+const PAGES   = { "/": "experts.html", "/experts.html": "experts.html", "/portal": "portal.html", "/portal.html": "portal.html", "/admin": "admin.html", "/admin.html": "admin.html" };
 const API_KEY = "sk-50ca2008e8414c2cbe5bc11fabd9f715"; // 罗琼芝
 const TARGET  = "https://dashscope.aliyuncs.com";
 

@@ -357,9 +357,10 @@ function ic(name, size=18){ return '<svg viewBox="0 0 24 24" width="'+size+'" he
 function hydrateIcons(root=document){ root.querySelectorAll('[data-ic]').forEach(el=>{ el.innerHTML=ic(el.dataset.ic, +(el.dataset.sz||18)); }); }
 
 /* ============ 种子数据（基于现有两位专家） ============ */
-const SEED = {
+const SEED_EXPERTS = {
   zhenghao: {
     id:"zhenghao", name:"郑浩", initial:"郑", avBg:"linear-gradient(135deg,#2b3a67,#16203d)",
+    account:"zhenghao@hsxq.top", password:"demo1234", listed:true,
     botName:"郑浩 · AI 业务增长顾问",
     title:"财税中高端业务增长顾问",
     tags:["中高端业务升级","五阶经营账应用","获客与谈单转化","财税组织赋能"],
@@ -385,6 +386,7 @@ const SEED = {
   },
   luoqiongzhi: {
     id:"luoqiongzhi", name:"罗琼芝", initial:"罗", avBg:"linear-gradient(135deg,#ff6a5a,#B0141A)",
+    account:"luoqiongzhi@hsxq.top", password:"demo1234", listed:true,
     botName:"罗琼芝 · AI 财税顾问",
     title:"财税实战专家",
     tags:["税务合规","跨境电商VAT","利润精准测算","税务风险筹划"],
@@ -409,34 +411,43 @@ const SEED = {
     visits:"2,057", chats:"541"
   }
 };
-const ACCOUNTS = { "zhenghao@hsxq.top":"zhenghao", "luoqiongzhi@hsxq.top":"luoqiongzhi" };
+/* ============ 共享账号注册表（admin.html 与 portal.html 共用） ============ */
+const RP_KEY = "rp_registry_v1";
+function getReg(){
+  try{ const s=localStorage.getItem(RP_KEY); if(s) return JSON.parse(s); }catch(e){}
+  const init={ experts: JSON.parse(JSON.stringify(SEED_EXPERTS)) };
+  localStorage.setItem(RP_KEY, JSON.stringify(init)); return init;
+}
+function saveReg(r){ localStorage.setItem(RP_KEY, JSON.stringify(r)); }
 
 /* ============ 状态与持久化 ============ */
 let CUR=null, D=null;
-const LSKEY = id => "portal_"+id;
-function loadData(id){ try{ const s=localStorage.getItem(LSKEY(id)); if(s) return JSON.parse(s); }catch(e){} return JSON.parse(JSON.stringify(SEED[id])); }
-function persist(){ if(CUR) localStorage.setItem(LSKEY(CUR), JSON.stringify(D)); }
+function persist(){ if(!CUR) return; const reg=getReg(); reg.experts[CUR]=D; saveReg(reg); }
 
 /* ============ 登录 ============ */
 function renderQuick(){
   const r=document.getElementById("quick-row");
-  r.innerHTML=Object.values(SEED).map(e=>`
+  const experts=Object.values(getReg().experts);
+  r.innerHTML=experts.map(e=>`
     <button class="quick-btn" onclick="loginAs('${e.id}')">
       <span class="qa" style="background:${e.avBg}">${e.initial}</span>
-      <span><b>${e.name}</b><span>${e.title.slice(0,8)}…</span></span>
+      <span><b>${esc(e.name)}</b><span>${esc((e.title||"专家账号").slice(0,8))}…</span></span>
     </button>`).join("");
 }
 function doLogin(){
   const u=document.getElementById("lg-user").value.trim().toLowerCase();
-  const id=ACCOUNTS[u];
-  if(!id){ toast("演示账号：zhenghao@hsxq.top 或 luoqiongzhi@hsxq.top（任意密码）", true); return; }
+  const pass=document.getElementById("lg-pass").value;
+  const reg=getReg();
+  const id=Object.keys(reg.experts).find(k=>(reg.experts[k].account||"").toLowerCase()===u);
+  if(!id){ toast("账号不存在，请确认管理员已为您创建账号", true); return; }
+  if(reg.experts[id].password && pass!==reg.experts[id].password){ toast("密码不正确", true); return; }
   loginAs(id);
 }
-function loginAs(id){ CUR=id; D=loadData(id); enterPortal(); }
+function loginAs(id){ const reg=getReg(); if(!reg.experts[id]){ toast("账号不存在",true); return; } CUR=id; D=reg.experts[id]; enterPortal(); }
 function enterPortal(){
   document.getElementById("login").style.display="none";
   document.getElementById("portal").style.display="block";
-  document.getElementById("me-av").style.background=SEED[CUR].avBg;
+  document.getElementById("me-av").style.background=D.avBg;
   document.getElementById("me-av").textContent=D.initial;
   document.getElementById("me-name").textContent=D.name;
   document.getElementById("me-role").textContent="专家账号";
@@ -465,7 +476,7 @@ function renderOverview(){
   document.getElementById("ov-chats").textContent=D.chats;
   document.getElementById("ov-svc").textContent=[...D.base,...D.vas].filter(s=>s.on).length;
   document.getElementById("ov-kb").textContent=D.kb.length;
-  const bav=document.getElementById("bot-av"); bav.style.background=SEED[CUR].avBg; bav.textContent=D.initial;
+  const bav=document.getElementById("bot-av"); bav.style.background=D.avBg; bav.textContent=D.initial;
   document.getElementById("bot-name").textContent=D.botName;
 }
 
@@ -572,7 +583,7 @@ let toastTimer=null;
 function toast(msg,warn){ const t=document.getElementById("toast"); document.getElementById("toast-msg").textContent=msg;
   t.querySelector(".tk").innerHTML=ic(warn?"bulb":"check",16); t.querySelector(".tk").style.color=warn?"#fbbf24":"#4ade80";
   i18nSync(); t.classList.add("show"); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2600); }
-function resetDemo(){ if(confirm("重置为初始演示数据？将清除本次所有修改。")){ localStorage.removeItem(LSKEY(CUR)); D=loadData(CUR); renderAll(); toast("已重置演示数据"); } }
+function resetDemo(){ if(confirm("重置为初始演示数据？将清除所有专家的修改（含管理员新建的账号）。")){ localStorage.removeItem(RP_KEY); const reg=getReg(); if(reg.experts[CUR]){ D=reg.experts[CUR]; renderAll(); toast("已重置演示数据"); } else { doLogout(); } } }
 
 /* ============ 简体 / 繁体 切换 ============ */
 window.PLANG = localStorage.getItem("portal_lang")==="tw" ? "tw" : "cn";
