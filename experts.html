@@ -537,7 +537,7 @@ function renderDetail(e){
           <span class="tag">✦ AI 深度服务 · 订阅制</span>
           <h4>AI 深度服务订阅 <span class="sp">¥1,980 / 月起</span></h4>
           <p>订阅专属 AI 智能体的深度陪跑：7×24 优先响应、专属知识库持续更新、复杂问题直通真人专家，并定期主动提醒与经营复盘。</p>
-          <button class="sub-btn" onclick="subscribeAI(event)">立即订阅 →</button>
+          <button class="sub-btn" onclick="subscribeAI(event,'${e.id}')">立即订阅 →</button>
         </div>
         ${e.vas.map(v=>`<div class="vas"><div class="row"><b>${v.t}</b><span class="price">${v.price}</span></div><p>${v.d}</p></div>`).join("")}
         </div>
@@ -868,7 +868,7 @@ function showView(v){
 }
 function goExpert(id){location.hash="#/expert/"+id;}
 function focusChat(ev){ev.preventDefault();const a=document.getElementById("chat-anchor");if(a)a.scrollIntoView({behavior:"smooth"});setTimeout(()=>{const i=document.getElementById("input");if(i&&!i.disabled)i.focus();},400);}
-function subscribeAI(ev){if(ev)ev.preventDefault();const a=document.getElementById("chat-anchor");if(a)a.scrollIntoView({behavior:"smooth"});const i=document.getElementById("input");if(i&&!i.disabled){i.value="我想订阅「AI 深度服务」，请介绍方案、权益与价格。";i.dispatchEvent(new Event("input"));setTimeout(()=>i.focus(),420);}}
+function subscribeAI(ev,id){if(ev)ev.preventDefault();location.href="workspace.html?expert="+encodeURIComponent(id||"");}
 
 function route(){
   const h=location.hash||"#/experts";
