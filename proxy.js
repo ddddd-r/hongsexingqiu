@@ -118,10 +118,28 @@ const server = http.createServer(async (req, res) => {
       body: (req.method === "GET" || req.method === "HEAD") ? undefined : body
     });
 
-    // 流式管道转发：不缓冲，逐块写回客户端（兼容普通 JSON 与 SSE）
-    res.writeHead(r.status, { "Content-Type": r.headers.get("content-type") || "application/json" });
-    if (r.body) { Readable.fromWeb(r.body).pipe(res); }
-    else { res.end(await r.text()); }
+    // 流式转发：SSE 加保活心跳与禁缓冲头，避免长 TTFB 被边缘空闲超时掐断
+    const ctype = r.headers.get("content-type") || "application/json";
+    const isSSE = /text\/event-stream/i.test(ctype) || !!req.headers["x-dashscope-sse"];
+    const respHeaders = { "Content-Type": ctype };
+    if (isSSE) { respHeaders["Cache-Control"] = "no-cache, no-transform"; respHeaders["Connection"] = "keep-alive"; respHeaders["X-Accel-Buffering"] = "no"; }
+    res.writeHead(r.status, respHeaders);
+
+    if (!r.body) { return res.end(await r.text()); }
+    if (!isSSE) { return Readable.fromWeb(r.body).pipe(res); }
+
+    // SSE：首字节到达前每 10s 发送注释行保活（客户端解析器忽略非 data: 行）
+    let firstByte = false;
+    const hb = setInterval(() => { if (!firstByte && !res.writableEnded) { try { res.write(": ping\n\n"); } catch (_) {} } }, 10000);
+    const reader = r.body.getReader();
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (!firstByte) { firstByte = true; clearInterval(hb); }
+        res.write(Buffer.from(value));
+      }
+    } finally { clearInterval(hb); res.end(); }
 
   } catch (e) {
     res.writeHead(500, { "Content-Type":"application/json" });

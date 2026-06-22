@@ -292,6 +292,10 @@
   footer{margin:60px 0 40px;text-align:center;color:var(--ink-3);font-size:13px}
   footer b{color:var(--ink-2)}
   .err{background:#fff3f2;border:1px solid #f5c2bd;color:var(--red-deep);font-size:13px;padding:11px 14px;border-radius:10px;margin:0 22px 14px}
+  .chat-err-box{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .chat-err-box button{border:none;background:var(--red);color:#fff;border-radius:8px;padding:6px 16px;font-weight:700;font-size:12.5px;cursor:pointer}
+  .chat-err-box button:hover{background:var(--red-deep)}
+  .chat-err-box .ce-detail{color:#b07a76;font-size:11px;opacity:.85}
 
   /* ===== 移动端适配 ===== */
   @media(max-width:640px){
@@ -788,8 +792,12 @@ function mdToHtml(md){
   return html;
 }
 function showErr(msg){const e=document.getElementById("chat-err");e.innerHTML=`<div class="err">${msg}</div>`;}
+function showChatErr(err){const d=((err&&err.message)||"").slice(0,90);document.getElementById("chat-err").innerHTML='<div class="err chat-err-box"><span>⚠️ 连接中断，可能是网络波动或服务繁忙。</span><button onclick="resendLast()">重试</button>'+(d?'<span class="ce-detail">'+escapeHtml(d)+'</span>':'')+'</div>';}
 function clearErr(){const e=document.getElementById("chat-err");if(e)e.innerHTML="";}
 
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function isNetErr(e){ const m=((e&&e.message)||"").toLowerCase(); return m.includes("network")||m.includes("fetch")||m.includes("load failed")||m.includes("timeout")||m.includes("err_")||m.includes("connection"); }
+let lastSend=null;
 async function doSend(expert){
   const input=document.getElementById("input");
   const text=input.value.trim();
@@ -798,29 +806,36 @@ async function doSend(expert){
   const sent=[...attachments];
   pushMsg("user",text,sent,expert.initial,expert.pfAvBg);
   input.value="";input.style.height="auto";attachments=[];renderPreview();
-
-  // typing 指示
+  await runAgent(expert,text,sent);
+}
+async function runAgent(expert,text,sent){
+  lastSend={expert,text,sent}; clearErr();
   const m=document.getElementById("msgs");
   const t=document.createElement("div");t.className="msg bot";
-  t.innerHTML=`<div class="b-av" style="background:${expert.pfAvBg}">${expert.initial}</div><div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  const TYPING='<div class="typing"><span></span><span></span><span></span></div>';
+  t.innerHTML=`<div class="b-av" style="background:${expert.pfAvBg}">${expert.initial}</div><div class="bubble">${TYPING}</div>`;
   m.appendChild(t);m.scrollTop=m.scrollHeight;
+  const bubble=t.querySelector(".bubble");
+  let gotChunk=false;
+  const onChunk=(full)=>{ gotChunk=true; bubble.innerHTML=mdToHtml(full); m.scrollTop=m.scrollHeight; };
   document.getElementById("send").disabled=true;
-
   try{
-    const bubble=t.querySelector(".bubble");
-    const reply=await callBailian(text,sent,expert,(full)=>{
-      bubble.innerHTML=mdToHtml(full);
-      m.scrollTop=m.scrollHeight;
-    });
+    let reply, attempt=0;
+    while(true){
+      attempt++;
+      try{ reply=await callBailian(text,sent,expert,onChunk); break; }
+      catch(err){ if(!gotChunk && attempt<3 && isNetErr(err)){ bubble.innerHTML=TYPING; await sleep(700*attempt); continue; } throw err; }
+    }
     bubble.innerHTML=mdToHtml(reply)+COPY_BTN;
   }catch(err){
     t.remove();
-    showErr("调用失败："+err.message+"　（若为 CORS/网络问题，请运行随附 proxy.js 并把 CONFIG.bailian.useProxy 设为 true）");
+    showChatErr(err);
   }finally{
     document.getElementById("send").disabled=false;
     m.scrollTop=m.scrollHeight;
   }
 }
+function resendLast(){ if(lastSend) runAgent(lastSend.expert,lastSend.text,lastSend.sent); }
 
 /* 通过代理把本地文件上传到百炼临时 OSS，返回 oss:// 链接 */
 async function uploadFileViaProxy(att){

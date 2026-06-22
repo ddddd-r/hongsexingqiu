@@ -144,6 +144,11 @@
 
   .err{max-width:780px;margin:0 auto;width:100%;padding:0 24px}
   .err>div{background:#fff3f2;border:1px solid #f5c2bd;color:var(--red-deep);font-size:13px;padding:11px 14px;border-radius:10px}
+  .chat-err-box{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .chat-err-box button{border:none;background:var(--red);color:#fff;border-radius:8px;padding:6px 16px;font-weight:700;font-size:12.5px;cursor:pointer}
+  .chat-err-box button:hover{background:var(--red-deep)}
+  .chat-err-box .ce-detail{color:#b07a76;font-size:11px;opacity:.8}
+  .aw-tip{margin-top:8px;font-size:12.5px;color:var(--red);font-weight:600}
 
   /* composer */
   .composer{flex:none;padding:14px 24px 20px;background:linear-gradient(to top,var(--bg) 70%,transparent)}
@@ -342,6 +347,9 @@ function renderMessages(){
 function quickAsk(t){ const i=document.getElementById("input"); i.value=t; doSend(); }
 
 /* ===== 发送 ===== */
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function isNetErr(e){ const m=((e&&e.message)||"").toLowerCase(); return m.includes("network")||m.includes("fetch")||m.includes("load failed")||m.includes("timeout")||m.includes("err_")||m.includes("connection"); }
+let lastSend=null;
 async function doSend(){
   const input=document.getElementById("input");
   const text=input.value.trim();
@@ -352,7 +360,10 @@ async function doSend(){
   cur.msgs.push({role:"user",text,atts:sent.map(a=>({kind:a.kind,name:a.name,dataUrl:a.kind==="image"?a.dataUrl:""}))});
   renderMessages(); renderSidebar();
   input.value="";input.style.height="auto";attachments=[];renderPreview();
-
+  await runAgent(text,sent);
+}
+async function runAgent(text,sent){
+  lastSend={text,sent}; clearErr();
   document.querySelectorAll(".next-actions").forEach(e=>e.remove());
   const m=document.getElementById("msgs"); const inner=document.getElementById("msgs-inner");
   const t=document.createElement("div"); t.className="msg bot";
@@ -360,10 +371,19 @@ async function doSend(){
   inner.appendChild(t); m.scrollTop=m.scrollHeight;
   const bubble=t.querySelector(".bubble");
   let stp=0; const wiv=setInterval(()=>{ stp=Math.min(stp+1,WORK_STEPS.length-1); bubble.innerHTML=workHtml(stp); m.scrollTop=m.scrollHeight; },680);
-  let firstChunk=false;
+  let firstChunk=false, gotChunk=false;
+  const onChunk=(full)=>{ if(!firstChunk){firstChunk=true;clearInterval(wiv);} gotChunk=true; bubble.innerHTML=mdToHtml(full); m.scrollTop=m.scrollHeight; };
   document.getElementById("send").disabled=true;
   try{
-    const reply=await callBailian(text,sent,EXP,(full)=>{ if(!firstChunk){firstChunk=true;clearInterval(wiv);} bubble.innerHTML=mdToHtml(full); m.scrollTop=m.scrollHeight; });
+    let reply, attempt=0;
+    while(true){
+      attempt++;
+      try{ reply=await callBailian(text,sent,EXP,onChunk); break; }
+      catch(err){
+        if(!gotChunk && attempt<3 && isNetErr(err)){ stp=1; bubble.innerHTML=workHtml(1)+'<div class="aw-tip">网络波动，正在自动重试（'+attempt+'/2）…</div>'; m.scrollTop=m.scrollHeight; await sleep(700*attempt); continue; }
+        throw err;
+      }
+    }
     clearInterval(wiv);
     bubble.innerHTML=mdToHtml(reply)+COPY_BTN;
     cur.msgs.push({role:"bot",text:reply});
@@ -373,13 +393,14 @@ async function doSend(){
     m.scrollTop=m.scrollHeight;
   }catch(err){
     clearInterval(wiv); t.remove();
-    showErr("调用失败："+err.message);
+    showChatErr(err);
     persistConvo();
   }finally{
     document.getElementById("send").disabled=false;
     m.scrollTop=m.scrollHeight;
   }
 }
+function resendLast(){ if(lastSend) runAgent(lastSend.text,lastSend.sent); }
 
 /* ===== 百炼接入（流式 + 多模态） ===== */
 async function uploadFileViaProxy(att){
@@ -503,6 +524,8 @@ function bindMic(){
 
 /* ===== 工具 ===== */
 function showErr(msg){ document.getElementById("chat-err").innerHTML=`<div>${esc(msg)}</div>`; }
+function showChatErr(err){ const d=((err&&err.message)||"").slice(0,90);
+  document.getElementById("chat-err").innerHTML='<div class="chat-err-box"><span>⚠️ 连接中断，可能是网络波动或服务繁忙。</span><button onclick="resendLast()">重试</button>'+(d?'<span class="ce-detail">'+esc(d)+'</span>':'')+'</div>'; }
 function clearErr(){ document.getElementById("chat-err").innerHTML=""; }
 function openSide(){ document.getElementById("side").classList.add("open"); document.getElementById("scrim").classList.add("show"); }
 function closeSide(){ document.getElementById("side").classList.remove("open"); document.getElementById("scrim").classList.remove("show"); }
